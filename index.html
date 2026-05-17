@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Visualizer - Dein Finanz-Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section class="hero-section">
+        <div class="container">
+            <header class="header" id="heroHeader">
+                <h1>Monatlich</h1>
+                <span class="amount" id="totalDisplay">4.275€</span>
+            </header>
+
+            <div class="viz-container" id="vizContainer">
+                <div class="labels-top" id="labels-top"></div>
+                <div class="bar" id="bar"></div>
+                <div class="labels-bottom" id="labels-bottom"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="editor-section">
+        <div class="input-card">
+            <h2>Einkommen</h2>
+            <div class="input-group">
+                <label>Monatliches Nettoeinkommen (€)</label>
+                <input type="number" id="incomeInput" value="4275">
+            </div>
+        </div>
+
+        <div class="input-card">
+            <h2>Neue Ausgabe</h2>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+                <div class="input-group">
+                    <label>Bezeichnung</label>
+                    <input type="text" id="expenseName" placeholder="z.B. Miete">
+                </div>
+                <div class="input-group">
+                    <label>Betrag (€)</label>
+                    <input type="number" id="expenseAmount" placeholder="0">
+                </div>
+            </div>
+            <button class="btn-add" id="addExpenseBtn">Ausgabe Hinzufügen</button>
+        </div>
+
+        <div class="input-card">
+            <h2>Deine Ausgaben</h2>
+            <p style="font-weight: 600; opacity: 0.6; margin-top: -1rem; margin-bottom: 1rem;">Ziehen zum Sortieren • Doppelklick zum Bearbeiten</p>
+            <div class="expense-list" id="expenseList" style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Dynamic list of expenses -->
+            </div>
+        </div>
+
+        <div class="input-card">
+            <h2>Häufige Ausgaben</h2>
+            <p style="font-weight: 600; opacity: 0.6; margin-top: -1rem; margin-bottom: 1rem;">Klicke auf einen Baustein, um ihn hinzuzufügen.</p>
+            <div class="quick-add-container" id="quickAddContainer">
+                <!-- Quick add chips will be here -->
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // --- Configuration ---
+        const COMMON_CATEGORIES = [
+            'Essen', 'Miete', 'Internet', 'Handy', 'Versicherung', 'Freizeit', 'Auto', 'Gym', 'Abo', 'Sparen'
+        ];
+
+        const DEFAULT_DATA = {
+            income: 4275,
+            expenses: [
+                { name: 'Wohnen', amount: 634 },
+                { name: 'Freizeit & Lifestyle', amount: 558 },
+                { name: 'Fortbildungen', amount: 535 },
+                { name: 'Studienkredit', amount: 500 },
+                { name: 'Essen', amount: 380 },
+                { name: 'Mobilität', amount: 195 },
+                { name: 'Versicherungen & Sonstiges', amount: 67 },
+                { name: 'Kleidung & Körperpflege', amount: 65 }
+            ]
+        };
+
+        // --- State Management ---
+        let budget = JSON.parse(localStorage.getItem('myBudget')) || DEFAULT_DATA;
+        let editingIndex = null;
+        let draggedItemIndex = null;
+
+        function saveState() {
+            localStorage.setItem('myBudget', JSON.stringify(budget));
+        }
+
+        // --- Quick Add Implementation ---
+        function initQuickAdd() {
+            const container = document.getElementById('quickAddContainer');
+            container.innerHTML = ''; 
+            COMMON_CATEGORIES.forEach(cat => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.innerText = cat;
+                chip.onclick = () => {
+                    budget.expenses.push({ name: cat, amount: 0 });
+                    render();
+                    setTimeout(() => {
+                        const items = document.querySelectorAll('.expense-item');
+                        const lastItem = items[items.length - 1];
+                        lastItem.scrollIntoView({ behavior: 'smooth' });
+                        startEditing(budget.expenses.length - 1);
+                    }, 100);
+                };
+                container.appendChild(chip);
+            });
+        }
+
+        // --- Inline Editing ---
+        function startEditing(index) {
+            editingIndex = index;
+            render();
+            const input = document.querySelector(`.expense-item[data-index="${index}"] .edit-amount`);
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }
+
+        function finishEditing(index, newName, newAmount) {
+            if (newName !== undefined) budget.expenses[index].name = newName;
+            if (newAmount !== undefined && !isNaN(newAmount)) budget.expenses[index].amount = newAmount;
+            editingIndex = null;
+            render();
+        }
+
+        // --- Drag and Drop Implementation ---
+        function handleDragStart(e, index) {
+            draggedItemIndex = index;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDrop(e, targetIndex) {
+            e.preventDefault();
+            if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
+            
+            const items = [...budget.expenses];
+            const draggedItem = items.splice(draggedItemIndex, 1)[0];
+            items.splice(targetIndex, 0, draggedItem);
+            
+            budget.expenses = items;
+            draggedItemIndex = null;
+            render();
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        // --- Render Functions ---
+        function render() {
+            const bar = document.getElementById('bar');
+            const labelsTop = document.getElementById('labels-top');
+            const labelsBottom = document.getElementById('labels-bottom');
+            const expenseList = document.getElementById('expenseList');
+            const totalDisplay = document.getElementById('totalDisplay');
+
+            bar.innerHTML = '';
+            labelsTop.innerHTML = '';
+            labelsBottom.innerHTML = '';
+            expenseList.innerHTML = '';
+
+            totalDisplay.innerText = `${budget.income.toLocaleString('de-DE')}€`;
+
+            const totalExpenses = budget.expenses.reduce((sum, e) => sum + e.amount, 0);
+            const balance = budget.income - totalExpenses;
+            const isDeficit = balance < 0;
+
+            // Render Editor List
+            budget.expenses.forEach((expense, index) => {
+                const item = document.createElement('div');
+                item.className = `expense-item ${editingIndex === index ? 'editing' : ''}`;
+                item.dataset.index = index;
+                item.draggable = editingIndex === null;
+                
+                item.ondragstart = (e) => handleDragStart(e, index);
+                item.ondragover = (e) => handleDragOver(e);
+                item.ondrop = (e) => handleDrop(e, index);
+                item.ondragend = (e) => handleDragEnd(e);
+
+                if (editingIndex === index) {
+                    item.innerHTML = `
+                        <div style="display:flex; gap:1rem; width:100%; align-items:center;">
+                            <input class="edit-input edit-name" type="text" value="${expense.name}" style="flex:2;">
+                            <input class="edit-input edit-amount" type="number" value="${expense.amount}" style="flex:1; text-align:right;">
+                            <span style="font-size:1.4rem">€</span>
+                            <button style="background:var(--text-color); color:white; border:none; padding:0.5rem 1rem; font-weight:900; cursor:pointer;" onclick="editingIndex=null; render();">OK</button>
+                        </div>
+                    `;
+                    const nameInput = item.querySelector('.edit-name');
+                    const amountInput = item.querySelector('.edit-amount');
+                    
+                    [nameInput, amountInput].forEach(inp => {
+                        inp.onblur = (e) => {
+                            setTimeout(() => {
+                                if (editingIndex === index) finishEditing(index, nameInput.value, parseFloat(amountInput.value));
+                            }, 200);
+                        };
+                        inp.onkeydown = (e) => {
+                            if (e.key === 'Enter') finishEditing(index, nameInput.value, parseFloat(amountInput.value));
+                        };
+                    });
+                } else {
+                    item.innerHTML = `
+                        <span style="flex:1">${expense.name} (${expense.amount}€)</span>
+                        <button class="btn-remove" style="background:transparent; border:none; color:var(--accent-red); font-weight:900; cursor:pointer; font-size: 2rem;" onclick="event.stopPropagation(); removeExpense(${index})">✕</button>
+                    `;
+                    item.ondblclick = () => startEditing(index);
+                }
+                expenseList.appendChild(item);
+            });
+
+            // Render Segments
+            budget.expenses.forEach((expense, index) => {
+                const width = (expense.amount / budget.income) * 100;
+                if (width <= 0) return;
+
+                const seg = document.createElement('div');
+                seg.className = 'segment';
+                seg.style.width = `${width}%`;
+                seg.dataset.index = index;
+                bar.appendChild(seg);
+
+                const label = document.createElement('div');
+                label.className = 'label';
+                label.dataset.segment = index;
+                label.innerHTML = `
+                    <span class="name" style="font-size: 1.2rem;">${expense.name}</span>
+                    <span class="value" style="font-size: 2rem;">-${expense.amount}€</span>
+                    <div class="line"></div>
+                `;
+                
+                if (index % 2 === 0) {
+                    labelsBottom.appendChild(label);
+                } else {
+                    labelsTop.appendChild(label);
+                }
+
+                seg.addEventListener('mouseenter', () => label.classList.add('active'));
+                seg.addEventListener('mouseleave', () => label.classList.remove('active'));
+            });
+
+            // Render Balance Segment
+            const balanceWidth = (Math.abs(balance) / budget.income) * 100;
+            const balanceSeg = document.createElement('div');
+            balanceSeg.className = `segment ${isDeficit ? 'deficit' : 'surplus'}`;
+            balanceSeg.style.width = `${balanceWidth}%`;
+            bar.appendChild(balanceSeg);
+
+            const balanceLabel = document.createElement('div');
+            balanceLabel.className = `label ${isDeficit ? 'deficit' : ''}`;
+            balanceLabel.dataset.isBalance = true;
+            balanceLabel.innerHTML = `
+                <span class="name" style="font-size: 1.2rem;">${isDeficit ? 'Defizit' : 'Überschuss'}</span>
+                <span class="value" style="font-size: 2rem;">${balance.toLocaleString('de-DE')}€</span>
+                <div class="line"></div>
+            `;
+            labelsBottom.appendChild(balanceLabel);
+
+            saveState();
+            setTimeout(positionLabels, 50);
+        }
+
+        function positionLabels() {
+            const segments = document.querySelectorAll('.segment');
+            const labels = Array.from(document.querySelectorAll('.label'));
+            const bar = document.getElementById('bar');
+            const header = document.getElementById('heroHeader');
+            const vizContainer = document.getElementById('vizContainer');
+            if (!bar || !header) return;
+
+            const barRect = bar.getBoundingClientRect();
+            const headerRect = header.getBoundingClientRect();
+            
+            labels.forEach(label => {
+                let segment;
+                if (label.dataset.isBalance) {
+                    segment = segments[segments.length - 1];
+                } else {
+                    segment = segments[label.dataset.segment];
+                }
+                
+                if (!segment) return;
+                const segmentRect = segment.getBoundingClientRect();
+                const centerX = (segmentRect.left + segmentRect.width / 2) - barRect.left;
+                label.style.left = `${centerX}px`;
+                label.style.transform = 'translateX(-50%)';
+            });
+
+            const THRESHOLD = 160; 
+            const OFFSET_STEP = 75; 
+            const BASE_OFFSET = 60;
+            let maxTopHeight = 0;
+
+            const processSide = (sideLabels, side) => {
+                sideLabels.sort((a, b) => {
+                    const rectA = a.getBoundingClientRect();
+                    const rectB = b.getBoundingClientRect();
+                    return rectA.left - rectB.left;
+                });
+
+                let lastLevels = []; 
+
+                sideLabels.forEach(label => {
+                    const rect = label.getBoundingClientRect();
+                    let level = 0;
+                    while (lastLevels[level] !== undefined && rect.left < lastLevels[level] + THRESHOLD) {
+                        level++;
+                    }
+                    const h = BASE_OFFSET + level * OFFSET_STEP;
+                    if (side === 'top') {
+                        label.style.bottom = `${h}px`;
+                        maxTopHeight = Math.max(maxTopHeight, h + rect.height);
+                    } else {
+                        label.style.top = `${h}px`;
+                    }
+                    lastLevels[level] = rect.left;
+                    const line = label.querySelector('.line');
+                    if (line) {
+                        line.style.height = `${h + 15}px`;
+                        if (side === 'top') {
+                            line.style.bottom = `-${h + 30}px`;
+                        } else {
+                            line.style.top = `-${h + 30}px`;
+                        }
+                    }
+                });
+            };
+
+            processSide(Array.from(document.getElementById('labels-top').children), 'top');
+            processSide(Array.from(document.getElementById('labels-bottom').children), 'bottom');
+
+            // --- Dynamic Safety Margin ---
+            // Ensure vizContainer margin-top is at least enough to clear labels AND header
+            const minSafeMargin = maxTopHeight + 30; // 30px extra buffer
+            vizContainer.style.marginTop = `${Math.max(160, minSafeMargin)}px`;
+        }
+
+        // --- Interaction Logic ---
+        function removeExpense(index) {
+            budget.expenses.splice(index, 1);
+            render();
+        }
+
+        document.getElementById('addExpenseBtn').addEventListener('click', () => {
+            const name = document.getElementById('expenseName').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            if (name && !isNaN(amount)) {
+                budget.expenses.push({ name, amount });
+                render();
+                document.getElementById('expenseName').value = '';
+                document.getElementById('expenseAmount').value = '';
+            }
+        });
+
+        document.getElementById('incomeInput').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            if (!isNaN(val)) { budget.income = val; render(); }
+        });
+
+        window.addEventListener('load', () => {
+            document.getElementById('incomeInput').value = budget.income;
+            initQuickAdd();
+            render();
+        });
+        window.addEventListener('resize', positionLabels);
+    </script>
+</body>
+</html>

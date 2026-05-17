@@ -1,0 +1,445 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --accent-yellow: #f2ff00;
+    --accent-red: #ff3d00;
+    --gray-light: #f0f0f0;
+    --gray-medium: #e0e0e0;
+    --gray-dark: #b0b0b0;
+    --glass-bg: rgba(255, 255, 255, 0.9);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --font-main: 'Inter', sans-serif;
+    --skew-angle: -10deg;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #fafafa;
+    color: var(--text-color);
+    font-family: var(--font-main);
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.hero-section {
+    width: 100%;
+    min-height: 100vh;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10vh 5vw;
+    box-sizing: border-box;
+}
+
+.editor-section {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 100px 5vw;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    position: relative;
+    transform: rotate(-1.5deg);
+}
+
+.header {
+    margin-bottom: 5rem;
+    line-height: 0.8;
+}
+
+.header h1 {
+    font-weight: 900;
+    font-size: 6rem;
+    text-transform: uppercase;
+    letter-spacing: -4px;
+}
+
+.header .amount {
+    font-weight: 900;
+    font-size: 9rem;
+    display: block;
+    letter-spacing: -6px;
+}
+
+.viz-container {
+    position: relative;
+    margin-top: 15rem;
+    margin-bottom: 15rem;
+    width: 100%;
+}
+
+.bar {
+    display: flex;
+    height: 220px;
+    transform: skewX(-15deg);
+    background: transparent;
+    gap: 6px;
+}
+
+.segment {
+    height: 100%;
+    background: var(--gray-light);
+    position: relative;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    cursor: pointer;
+}
+
+.segment:hover {
+    filter: brightness(0.95);
+    transform: scaleY(1.05);
+    z-index: 10;
+}
+
+.segment.surplus {
+    background: var(--accent-yellow);
+}
+
+.segment.deficit {
+    background: var(--accent-red);
+}
+
+.input-card {
+    background: white;
+    padding: 3rem;
+    border: 4px solid var(--text-color);
+    box-shadow: 20px 20px 0px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.input-card h2 {
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 2.5rem;
+    letter-spacing: -2px;
+    margin: 0;
+}
+
+.input-group label {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    opacity: 0.7;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.input-group input {
+    background: #f8f8f8;
+    border: 4px solid var(--text-color);
+    padding: 1.5rem;
+    font-family: var(--font-main);
+    font-weight: 900;
+    font-size: 2rem;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btn-add {
+    background: var(--text-color);
+    color: white;
+    border: none;
+    padding: 1.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.4rem;
+    width: 100%;
+}
+
+.btn-add:hover {
+    background: #333;
+    transform: translateY(-2px);
+}
+
+.btn-center {
+    background: transparent;
+    border: 3px solid var(--text-color);
+    padding: 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: auto;
+    transition: all 0.2s;
+}
+
+.expense-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border: 4px solid var(--glass-border);
+    background: white;
+    font-weight: 900;
+    font-size: 1.4rem;
+    transition: all 0.2s, transform 0.1s;
+    cursor: grab;
+    position: relative;
+    user-select: none;
+}
+
+.expense-item:active {
+    cursor: grabbing;
+}
+
+.expense-item.dragging {
+    opacity: 0.4;
+    transform: scale(0.98);
+    border-style: dashed;
+}
+
+.expense-item::before {
+    content: "⋮⋮";
+    margin-right: 1rem;
+    opacity: 0.3;
+    font-size: 1.2rem;
+}
+
+.expense-item:hover {
+    border-color: var(--text-color);
+    background: #fdfdfd;
+}
+
+.expense-item.editing {
+    border-color: var(--accent-yellow);
+    background: #fffef0;
+}
+
+.edit-input {
+    font-family: var(--font-main);
+    font-weight: 900;
+    font-size: 1.4rem;
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+}
+
+.quick-add-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.chip {
+    background: var(--gray-light);
+    border: 3px solid var(--text-color);
+    padding: 0.8rem 1.5rem;
+    font-weight: 900;
+    font-size: 1rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.chip:hover {
+    background: var(--accent-yellow);
+    transform: translateY(-3px);
+    box-shadow: 5px 5px 0px rgba(0,0,0,1);
+}
+
+.chip:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.btn-export {
+    background: var(--accent-yellow);
+    border: 4px solid var(--text-color);
+    padding: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.5rem;
+    width: 100%;
+}
+
+.btn-export:hover {
+    background: var(--text-color);
+    color: white;
+}
+
+/* Intro Banner */
+.intro-banner {
+    background: var(--accent-yellow);
+    padding: 2rem;
+    border: 3px solid var(--text-color);
+    margin-bottom: 2rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.intro-banner h3 {
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+}
+
+.intro-banner p {
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.4;
+    opacity: 0.8;
+}
+
+.btn-close-banner {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+/* Print Styles */
+@media print {
+    body {
+        grid-template-columns: 1fr;
+        background: white;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar, .btn-exit-presentation, .btn-close-banner {
+        display: none !important;
+    }
+
+    .main-content {
+        padding: 0;
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .container {
+        transform: rotate(0); /* Straighten for print */
+        max-width: 100%;
+        width: 90vw;
+    }
+
+    .header {
+        margin-bottom: 5rem;
+    }
+
+    .viz-container {
+        margin-top: 10rem;
+        margin-bottom: 10rem;
+    }
+}
+
+.label.deficit {
+    color: var(--accent-red);
+}
+
+.label.deficit .line {
+    background: var(--accent-red);
+}
+
+/* Label logic */
+.label-container {
+    position: absolute;
+    width: 100%;
+    height: 0;
+    left: 0;
+}
+
+.label {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    white-space: nowrap;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.label.active {
+    color: var(--accent-yellow);
+    transform: translateX(-50%) scale(1.1) !important;
+}
+
+.label.active .line {
+    background: var(--accent-yellow);
+}
+
+.label .name {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+.label .value {
+    font-size: 3rem;
+    letter-spacing: -2px;
+}
+
+.labels-top, .labels-bottom {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    pointer-events: none; /* Let clicks pass to segments */
+}
+
+.labels-top { bottom: 100%; margin-bottom: 2rem; }
+.labels-bottom { top: 100%; margin-top: 2rem; }
+
+.line {
+    width: 2px;
+    background: var(--text-color);
+    position: absolute;
+    transform-origin: bottom;
+}
+
+/* Specific label adjustments to match image better */
+.label br {
+    display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .header h1 { font-size: 3rem; }
+    .header .amount { font-size: 4.5rem; }
+    .label .value { font-size: 2.5rem; }
+    .bar { height: 160px; }
+}
+
+@media (max-width: 768px) {
+    .container { transform: rotate(0); padding: 2rem 1rem; }
+    .header h1 { font-size: 2rem; }
+    .header .amount { font-size: 3rem; }
+    .label .value { font-size: 1.8rem; }
+    .label .name { font-size: 0.8rem; }
+    .bar { height: 100px; gap: 2px; }
+    .viz-container { margin-top: 8rem; }
+}
