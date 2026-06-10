@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How it works - Budget Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tutorial-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .step {
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: white;
+            border: 4px solid var(--text-color);
+            box-shadow: 8px 8px 0px rgba(0,0,0,1);
+        }
+        .step h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 0.5rem;
+        }
+        .step p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-links">
+        <a href="index.html" class="nav-link" data-i18n="backLink">← Back to Visualizer</a>
+    </div>
+
+    <div class="lang-switch">
+        <button class="lang-btn" data-lang="de">DE</button>
+        <button class="lang-btn active" data-lang="en">EN</button>
+    </div>
+
+    <section class="hero-section" style="min-height: auto; padding-top: 6rem; padding-bottom: 2rem;">
+        <div class="container">
+            <header class="header">
+                <h1 data-i18n="title">How it works</h1>
+            </header>
+        </div>
+    </section>
+
+    <section class="editor-section tutorial-container">
+        <div class="step">
+            <h3 data-i18n="step1Title">1. Setup Your Profile</h3>
+            <p data-i18n="step1Desc">Start by entering your job title, selecting your preferred currency, and adding your monthly or annual net income. The visualizer will automatically calculate the matching values.</p>
+        </div>
+
+        <div class="step">
+            <h3 data-i18n="step2Title">2. Add Expenses</h3>
+            <p data-i18n="step2Desc">Use the "New Expense" form to add custom expenses, or click on the "Common Expenses" chips for quick additions. You can double-click any expense in the list to edit it, or drag and drop to reorder them.</p>
+        </div>
+
+        <div class="step">
+            <h3 data-i18n="step3Title">3. Visualize & Export</h3>
+            <p data-i18n="step3Desc">The bar at the top updates in real-time, showing how much of your income goes where. Once you are happy, use the Export buttons at the bottom to download a PDF report or a portrait image tailored for Instagram.</p>
+        </div>
+    </section>
+
+    <script>
+        const TRANSLATIONS = {
+            de: {
+                backLink: "← Zurück zum Visualizer",
+                title: "Wie funktioniert das?",
+                step1Title: "1. Profil einrichten",
+                step1Desc: "Gib deinen Beruf ein, wähle deine Währung und trage dein monatliches oder jährliches Nettoeinkommen ein. Der Visualizer berechnet automatisch die passenden Werte.",
+                step2Title: "2. Ausgaben hinzufügen",
+                step2Desc: "Nutze das Formular für neue Ausgaben oder klicke auf die Bausteine unter 'Häufige Ausgaben'. Du kannst jede Ausgabe in der Liste doppelklicken, um sie zu bearbeiten, oder sie per Drag & Drop sortieren.",
+                step3Title: "3. Visualisieren & Exportieren",
+                step3Desc: "Der Balken oben aktualisiert sich in Echtzeit und zeigt dir genau, wohin dein Geld fließt. Wenn du fertig bist, nutze die Export-Buttons unten, um ein PDF oder ein für Instagram optimiertes Bild herunterzuladen."
+            },
+            en: {
+                backLink: "← Back to Visualizer",
+                title: "How it works",
+                step1Title: "1. Setup Your Profile",
+                step1Desc: "Start by entering your job title, selecting your preferred currency, and adding your monthly or annual net income. The visualizer will automatically calculate the matching values.",
+                step2Title: "2. Add Expenses",
+                step2Desc: "Use the 'New Expense' form to add custom expenses, or click on the 'Common Expenses' chips for quick additions. You can double-click any expense in the list to edit it, or drag and drop to reorder them.",
+                step3Title: "3. Visualize & Export",
+                step3Desc: "The bar at the top updates in real-time, showing how much of your income goes where. Once you are happy, use the Export buttons at the bottom to download a PDF report or a portrait image tailored for Instagram."
+            }
+        };
+
+        let currentLang = JSON.parse(localStorage.getItem('myBudget'))?.lang || 'en';
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.innerText = TRANSLATIONS[currentLang][el.dataset.i18n];
+            });
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === currentLang);
+            });
+        }
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentLang = e.target.dataset.lang;
+                
+                // Update budget in localStorage so index.html also picks it up
+                let budget = JSON.parse(localStorage.getItem('myBudget')) || {};
+                budget.lang = currentLang;
+                localStorage.setItem('myBudget', JSON.stringify(budget));
+
+                updateLanguage();
+            });
+        });
+
+        window.addEventListener('load', updateLanguage);
+    </script>
+</body>
+</html>

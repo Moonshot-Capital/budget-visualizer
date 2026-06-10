@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@400;700;900&display=swap');
 
 :root {
     --bg-color: #ffffff;
@@ -28,6 +28,73 @@ body {
     flex-direction: column;
     margin: 0;
     overflow-x: hidden;
+}
+
+/* Language Switch */
+.lang-switch {
+    position: fixed;
+    top: 2rem;
+    right: 5vw;
+    display: flex;
+    border: 3px solid var(--text-color);
+    background: white;
+    z-index: 1000;
+    box-shadow: 5px 5px 0px rgba(0,0,0,1);
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-family: var(--font-main);
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.lang-btn.active {
+    background: var(--text-color);
+    color: white;
+}
+
+.lang-btn:not(.active):hover {
+    background: var(--accent-yellow);
+}
+
+.header-links {
+    position: fixed;
+    top: 2rem;
+    left: 5vw;
+    z-index: 1000;
+}
+
+.nav-link {
+    background: white;
+    border: 3px solid var(--text-color);
+    padding: 0.5rem 1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-color);
+    box-shadow: 5px 5px 0px rgba(0,0,0,1);
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.nav-link:hover {
+    background: var(--accent-yellow);
+    transform: translateY(-2px);
+}
+
+.signature {
+    font-family: 'Caveat', cursive;
+    font-size: 3rem;
+    color: var(--text-color);
+    transform: rotate(-5deg);
+    margin-top: 4rem;
+    text-align: right;
+    width: 100%;
 }
 
 .hero-section {
@@ -152,7 +219,8 @@ body {
     display: block;
 }
 
-.input-group input {
+.input-group input,
+.input-group select {
     background: #f8f8f8;
     border: 4px solid var(--text-color);
     padding: 1.5rem;
@@ -162,6 +230,16 @@ body {
     outline: none;
     width: 100%;
     box-sizing: border-box;
+    appearance: none; /* remove default arrow */
+    border-radius: 0;
+}
+
+/* custom arrow for select */
+.input-group select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.5rem top 50%;
+    background-size: 1.5rem auto;
 }
 
 .btn-add {
@@ -454,5 +532,63 @@ body {
     .label .name { font-size: 0.8rem; }
     .viz-wrapper { padding: 0 5vw; box-sizing: border-box; }
     .viz-container { min-width: 800px; margin-top: 8rem; }
-    .bar { height: 100px; gap: 2px; }
 }
+
+/* Instagram Export Container */
+.instagram-export-container {
+    position: absolute;
+    left: -9999px; /* keep off-screen */
+    top: 0;
+    width: 1080px;
+    height: 1920px; /* 9:16 portrait */
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 100px;
+    box-sizing: border-box;
+    font-family: var(--font-main);
+    color: var(--text-color);
+    z-index: -100;
+}
+
+.instagram-export-container .export-header {
+    text-align: center;
+    margin-bottom: 200px;
+    transform: rotate(-1.5deg);
+}
+
+.instagram-export-container .export-header h1 {
+    font-weight: 900;
+    font-size: 6rem;
+    text-transform: uppercase;
+    letter-spacing: -4px;
+    margin: 0;
+    line-height: 1;
+}
+
+.instagram-export-container .export-header .job-title {
+    font-size: 3rem;
+    font-weight: 700;
+    opacity: 0.6;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.instagram-export-container .export-header .amount {
+    font-weight: 900;
+    font-size: 10rem;
+    letter-spacing: -6px;
+    display: block;
+}
+
+.instagram-export-container .export-viz {
+    width: 100%;
+    transform: rotate(-1.5deg);
+    position: relative;
+    padding-top: 150px;
+    padding-bottom: 150px;
+}
+
