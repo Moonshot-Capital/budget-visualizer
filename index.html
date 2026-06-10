@@ -14,10 +14,12 @@
                 <span class="amount" id="totalDisplay">4.275€</span>
             </header>
 
-            <div class="viz-container" id="vizContainer">
-                <div class="labels-top" id="labels-top"></div>
-                <div class="bar" id="bar"></div>
-                <div class="labels-bottom" id="labels-bottom"></div>
+            <div class="viz-wrapper" id="vizWrapper">
+                <div class="viz-container" id="vizContainer">
+                    <div class="labels-top" id="labels-top"></div>
+                    <div class="bar" id="bar"></div>
+                    <div class="labels-bottom" id="labels-bottom"></div>
+                </div>
             </div>
         </div>
     </section>
@@ -301,10 +303,12 @@
                 label.style.transform = 'translateX(-50%)';
             });
 
-            const THRESHOLD = 160; 
-            const OFFSET_STEP = 75; 
-            const BASE_OFFSET = 60;
+            const isMobile = window.innerWidth <= 768;
+            const THRESHOLD = isMobile ? 100 : 160; 
+            const OFFSET_STEP = isMobile ? 55 : 75; 
+            const BASE_OFFSET = isMobile ? 40 : 60;
             let maxTopHeight = 0;
+            let maxBottomHeight = 0;
 
             const processSide = (sideLabels, side) => {
                 sideLabels.sort((a, b) => {
@@ -327,6 +331,7 @@
                         maxTopHeight = Math.max(maxTopHeight, h + rect.height);
                     } else {
                         label.style.top = `${h}px`;
+                        maxBottomHeight = Math.max(maxBottomHeight, h + rect.height);
                     }
                     lastLevels[level] = rect.left;
                     const line = label.querySelector('.line');
@@ -345,9 +350,11 @@
             processSide(Array.from(document.getElementById('labels-bottom').children), 'bottom');
 
             // --- Dynamic Safety Margin ---
-            // Ensure vizContainer margin-top is at least enough to clear labels AND header
-            const minSafeMargin = maxTopHeight + 30; // 30px extra buffer
-            vizContainer.style.marginTop = `${Math.max(160, minSafeMargin)}px`;
+            const minSafeMarginTop = maxTopHeight + 30; 
+            vizContainer.style.marginTop = `${Math.max(160, minSafeMarginTop)}px`;
+            
+            const minSafeMarginBottom = maxBottomHeight + 30;
+            vizContainer.style.marginBottom = `${Math.max(160, minSafeMarginBottom)}px`;
         }
 
         // --- Interaction Logic ---

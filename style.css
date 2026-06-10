@@ -77,6 +77,16 @@ body {
     letter-spacing: -6px;
 }
 
+.viz-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+}
+.viz-wrapper::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
 .viz-container {
     position: relative;
     margin-top: 15rem;
@@ -435,11 +445,14 @@ body {
 }
 
 @media (max-width: 768px) {
-    .container { transform: rotate(0); padding: 2rem 1rem; }
+    .hero-section { padding-left: 0; padding-right: 0; overflow-x: hidden; }
+    .container { transform: rotate(0); padding: 2rem 0; width: 100%; max-width: 100%; }
+    .header { padding: 0 5vw; }
     .header h1 { font-size: 2rem; }
     .header .amount { font-size: 3rem; }
     .label .value { font-size: 1.8rem; }
     .label .name { font-size: 0.8rem; }
+    .viz-wrapper { padding: 0 5vw; box-sizing: border-box; }
+    .viz-container { min-width: 800px; margin-top: 8rem; }
     .bar { height: 100px; gap: 2px; }
-    .viz-container { margin-top: 8rem; }
 }
