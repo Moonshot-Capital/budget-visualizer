@@ -534,61 +534,125 @@ body {
     .viz-container { min-width: 800px; margin-top: 8rem; }
 }
 
-/* Instagram Export Container */
+/* ============================================
+   INSTAGRAM STORY EXPORT (1080 x 1920px, 9:16)
+   ============================================ */
 .instagram-export-container {
     position: absolute;
-    left: -9999px; /* keep off-screen */
+    left: -9999px;
     top: 0;
     width: 1080px;
-    height: 1920px; /* 9:16 portrait */
-    background: white;
+    height: 1920px;
+    background: #fafafa;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 100px;
+    justify-content: space-between;
+    align-items: stretch;
+    padding: 80px 80px 100px;
     box-sizing: border-box;
     font-family: var(--font-main);
     color: var(--text-color);
     z-index: -100;
+    overflow: hidden;
 }
 
-.instagram-export-container .export-header {
-    text-align: center;
-    margin-bottom: 200px;
-    transform: rotate(-1.5deg);
+/* Top branding tag */
+.ig-branding-tag {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 0;
 }
 
-.instagram-export-container .export-header h1 {
+.ig-tag-dot {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-yellow);
+    border-radius: 50%;
+    display: inline-block;
+    border: 3px solid var(--text-color);
+}
+
+.ig-tag-text {
+    font-size: 2.2rem;
     font-weight: 900;
-    font-size: 6rem;
     text-transform: uppercase;
-    letter-spacing: -4px;
-    margin: 0;
-    line-height: 1;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
 }
 
-.instagram-export-container .export-header .job-title {
-    font-size: 3rem;
+/* Center title + amount */
+.ig-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 0;
+}
+
+.ig-job-title {
+    font-size: 2.8rem;
     font-weight: 700;
-    opacity: 0.6;
     text-transform: uppercase;
-    margin-bottom: 1rem;
-    display: block;
+    opacity: 0.5;
+    margin-bottom: 16px;
+    letter-spacing: 0.05em;
+    min-height: 1px;
 }
 
-.instagram-export-container .export-header .amount {
-    font-weight: 900;
+.ig-title {
     font-size: 10rem;
+    font-weight: 900;
+    text-transform: uppercase;
     letter-spacing: -6px;
-    display: block;
+    line-height: 0.9;
+    margin-bottom: 24px;
 }
 
-.instagram-export-container .export-viz {
+.ig-amount {
+    font-size: 14rem;
+    font-weight: 900;
+    letter-spacing: -8px;
+    line-height: 1;
+    color: var(--text-color);
+}
+
+/* Bar visualization area */
+.ig-viz-area {
     width: 100%;
-    transform: rotate(-1.5deg);
-    position: relative;
-    padding-top: 150px;
-    padding-bottom: 150px;
+    flex-shrink: 0;
+    margin-bottom: 48px;
 }
 
+.ig-bar {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    border-radius: 0;
+    overflow: hidden;
+    border: 4px solid var(--text-color);
+    box-sizing: border-box;
+}
+
+.ig-bar > div {
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.ig-bar-labels {
+    display: flex;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Bottom signature */
+.ig-signature {
+    font-family: 'Caveat', cursive;
+    font-size: 5rem;
+    color: var(--text-color);
+    text-align: right;
+    transform: rotate(-3deg);
+    transform-origin: right bottom;
+    opacity: 0.85;
+}

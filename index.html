@@ -112,14 +112,24 @@
 
     <!-- Hidden container for Instagram Export -->
     <div class="instagram-export-container" id="igExportContainer">
-        <div class="export-header">
-            <span class="job-title" id="igExportJob"></span>
-            <h1 data-i18n="heroTitle">Monatlich</h1>
-            <span class="amount" id="igExportTotal"></span>
+        <!-- Top branding tag -->
+        <div class="ig-branding-tag">
+            <span class="ig-tag-dot"></span>
+            <span class="ig-tag-text">Budget Visualizer</span>
         </div>
-        <div class="export-viz" id="igExportViz">
-            <!-- Viz cloned here -->
+        <!-- Center content -->
+        <div class="ig-center">
+            <div class="ig-job-title" id="igExportJob"></div>
+            <div class="ig-title" id="igExportHeroTitle">Monthly</div>
+            <div class="ig-amount" id="igExportTotal"></div>
         </div>
+        <!-- The bar visualization -->
+        <div class="ig-viz-area" id="igExportViz">
+            <div class="ig-bar" id="igBar"></div>
+            <div class="ig-labels" id="igLabels"></div>
+        </div>
+        <!-- Bottom signature -->
+        <div class="ig-signature">Markus S.</div>
     </div>
 
     <script>
@@ -577,50 +587,79 @@
             const doc = new jsPDF('p', 'mm', 'a4');
             const elementToPrint = document.querySelector('.container');
             
-            // Render hero visualization
-            const canvas = await html2canvas(elementToPrint, { scale: 2 });
+            // Render hero visualization only - no expense list
+            const canvas = await html2canvas(elementToPrint, { 
+                scale: 2,
+                useCORS: true,
+                scrollX: 0,
+                scrollY: -window.scrollY
+            });
             const imgData = canvas.toDataURL('image/jpeg', 0.9);
             const pdfWidth = doc.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            doc.addImage(imgData, 'JPEG', 0, 10, pdfWidth, pdfHeight);
-
-            // Add text for expenses
-            let currentY = pdfHeight + 20;
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.text(t('expenseListPdf'), 10, currentY);
-            currentY += 10;
-            doc.setFontSize(12);
-            doc.setFont("helvetica", "normal");
-            budget.expenses.forEach(exp => {
-                doc.text(`${exp.name}: ${formatCurrency(exp.amount)}`, 10, currentY);
-                currentY += 8;
-            });
+            doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
             doc.save('budget.pdf');
         });
 
         document.getElementById('btnDownloadIg').addEventListener('click', async () => {
-            const container = document.getElementById('igExportContainer');
-            const vizClone = document.getElementById('vizContainer').cloneNode(true);
+            const igContainer = document.getElementById('igExportContainer');
             const totalDisplay = document.getElementById('totalDisplay').innerText;
             const jobTitle = budget.job || '';
-            
+
+            // Fill in header text
             document.getElementById('igExportTotal').innerText = totalDisplay;
             document.getElementById('igExportJob').innerText = jobTitle;
-            
-            const exportViz = document.getElementById('igExportViz');
-            exportViz.innerHTML = '';
-            exportViz.appendChild(vizClone);
+            document.getElementById('igExportHeroTitle').innerText = t('heroTitle');
 
-            // Give the browser a moment to apply styles to the cloned node
-            await new Promise(r => setTimeout(r, 100));
+            // Build the bar from actual budget data
+            const igBar = document.getElementById('igBar');
+            igBar.innerHTML = '';
 
-            const canvas = await html2canvas(container, { scale: 2 });
+            const totalExpenses = budget.expenses.reduce((s, e) => s + e.amount, 0);
+            const balance = budget.income - totalExpenses;
+            const isDeficit = balance < 0;
+
+            // Segment colors matching the main page
+            const segColors = ['#e8e8e8','#d8d8d8','#cacaca','#bcbcbc','#aeaeae','#a0a0a0','#929292','#848484'];
+
+            // Expense segments
+            budget.expenses.forEach((exp, i) => {
+                const pct = (exp.amount / budget.income) * 100;
+                if (pct <= 0) return;
+                const el = document.createElement('div');
+                el.style.cssText = `flex:0 0 ${pct}%;background:${segColors[i % segColors.length]};height:100%;`;
+                igBar.appendChild(el);
+            });
+
+            // Balance segment (surplus = yellow, deficit = red)
+            const balancePct = (Math.abs(balance) / budget.income) * 100;
+            if (balancePct > 0) {
+                const balEl = document.createElement('div');
+                balEl.style.cssText = `flex:0 0 ${balancePct}%;background:${isDeficit ? '#ff4444' : 'var(--accent-yellow)'};height:100%;`;
+                igBar.appendChild(balEl);
+            }
+
+            // Add stripe pattern (diagonal lines via repeating-linear-gradient to each segment)
+            Array.from(igBar.children).forEach(seg => {
+                seg.style.backgroundImage = 'repeating-linear-gradient(135deg, transparent, transparent 18px, rgba(255,255,255,0.12) 18px, rgba(255,255,255,0.12) 20px)';
+                seg.style.backgroundBlendMode = 'overlay';
+            });
+
+            await new Promise(r => setTimeout(r, 300));
+
+            const canvas = await html2canvas(igContainer, { 
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                width: 1080,
+                height: 1920
+            });
             const link = document.createElement('a');
-            link.download = 'budget-instagram.png';
+            link.download = 'budget-instagram-story.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         });
+
 
         window.addEventListener('load', () => {
             document.getElementById('incomeInput').value = budget.income;
