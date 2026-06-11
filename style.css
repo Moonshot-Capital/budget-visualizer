@@ -277,17 +277,101 @@ body {
 .expense-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem;
+    align-items: flex-start;
+    padding: 1.2rem 1.5rem;
     border: 4px solid var(--glass-border);
     background: white;
     font-weight: 900;
     font-size: 1.4rem;
     transition: all 0.2s, transform 0.1s;
-    cursor: grab;
+    cursor: pointer;
     position: relative;
     user-select: none;
 }
+
+/* Segment Tooltip */
+.seg-tooltip {
+    position: absolute;
+    z-index: 100;
+    background: var(--text-color);
+    color: white;
+    padding: 1.2rem 1.4rem;
+    width: 260px;
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.15);
+    animation: tooltipIn 0.15s ease;
+    pointer-events: auto;
+}
+@keyframes tooltipIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.seg-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: var(--text-color);
+}
+.seg-tooltip-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    margin-bottom: 0.3rem;
+}
+.seg-tooltip-amount {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+.seg-tooltip-pct {
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.5;
+    margin-top: 0.3rem;
+}
+.seg-tooltip-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.7rem;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.5;
+    line-height: 1;
+}
+.seg-tooltip-close:hover { opacity: 1; }
+
+/* Mobile tooltip: fixed, centered, bigger tap area */
+.seg-tooltip--mobile {
+    border-radius: 0;
+    padding: 1.6rem 1.8rem;
+    box-shadow: 0 -4px 30px rgba(0,0,0,0.3);
+}
+.seg-tooltip--mobile .seg-tooltip-name { font-size: 0.85rem; }
+.seg-tooltip--mobile .seg-tooltip-amount { font-size: 2.4rem; letter-spacing: -2px; }
+.seg-tooltip--mobile .seg-tooltip-pct { font-size: 0.9rem; }
+.seg-tooltip--mobile .seg-tooltip-close {
+    top: 1rem; right: 1.2rem;
+    font-size: 1.4rem;
+    opacity: 0.6;
+}
+.seg-tooltip--mobile::before { display: none; }
+
+/* Backdrop to dismiss tooltip on mobile */
+.seg-tooltip-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: transparent;
+}
+
 
 .expense-item:active {
     cursor: grabbing;

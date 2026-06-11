@@ -449,11 +449,16 @@
                         };
                     });
                 } else {
+                    const pct = budget.income > 0 ? ((expense.amount / budget.income) * 100).toFixed(1) : 0;
                     item.innerHTML = `
-                        <span style="flex:1">${expense.name} (${formatCurrency(expense.amount)})</span>
+                        <div style="flex:1; display:flex; flex-direction:column; gap:0.2rem;">
+                            <span style="font-weight:900; font-size:1.1rem;">${expense.name}</span>
+                            <span style="font-weight:700; font-size:1.5rem; letter-spacing:-0.5px;">${formatCurrency(expense.amount)} <span style="font-weight:500; font-size:0.85rem; opacity:0.45;">(${pct}%)</span></span>
+                        </div>
                         <button class="btn-remove" style="background:transparent; border:none; color:var(--accent-red); font-weight:900; cursor:pointer; font-size: 2rem;" onclick="event.stopPropagation(); removeExpense(${index})">✕</button>
                     `;
                     item.ondblclick = () => startEditing(index);
+                    item.addEventListener('click', (e) => { if (!e.target.closest('.btn-remove')) startEditing(index); });
                 }
                 expenseList.appendChild(item);
             });
@@ -473,8 +478,65 @@
                 seg.className = 'segment';
                 seg.style.width = `${width}%`;
                 seg.style.background = segmentShades[index % segmentShades.length];
+                seg.style.cursor = 'pointer';
                 seg.dataset.index = index;
                 bar.appendChild(seg);
+
+                // Tap / click → show tooltip
+                const showTooltip = (e) => {
+                    e.stopPropagation();
+                    // Remove existing tooltips + backdrops
+                    document.querySelectorAll('.seg-tooltip, .seg-tooltip-backdrop').forEach(el => el.remove());
+
+                    const isMobile = window.innerWidth <= 600;
+                    const pct = (expense.amount / budget.income * 100).toFixed(1);
+                    const tip = document.createElement('div');
+                    tip.className = 'seg-tooltip';
+                    if (isMobile) tip.classList.add('seg-tooltip--mobile');
+                    tip.innerHTML = `
+                        <div class="seg-tooltip-name">${expense.name}</div>
+                        <div class="seg-tooltip-amount">${formatCurrency(expense.amount)}</div>
+                        <div class="seg-tooltip-pct">${pct}% ${budget.lang === 'en' ? 'of income' : 'des Einkommens'}</div>
+                        <button class="seg-tooltip-close" onclick="document.querySelectorAll('.seg-tooltip,.seg-tooltip-backdrop').forEach(el=>el.remove())">✕</button>
+                    `;
+
+                    if (isMobile) {
+                        // On mobile: fixed overlay at bottom of bar, full-width feels native
+                        const segRect = seg.getBoundingClientRect();
+                        document.body.appendChild(tip);
+                        tip.style.position = 'fixed';
+                        tip.style.left = '50%';
+                        tip.style.transform = 'translateX(-50%)';
+                        tip.style.top = Math.min(segRect.bottom + 12, window.innerHeight - 160) + 'px';
+                        tip.style.width = 'calc(100vw - 3rem)';
+                        tip.style.maxWidth = '420px';
+                        // Tap-backdrop to dismiss
+                        const bd = document.createElement('div');
+                        bd.className = 'seg-tooltip-backdrop';
+                        bd.onclick = () => document.querySelectorAll('.seg-tooltip,.seg-tooltip-backdrop').forEach(el => el.remove());
+                        document.body.appendChild(bd);
+                    } else {
+                        // Desktop: position relative to vizWrapper
+                        const vizWrapper = document.getElementById('vizWrapper');
+                        const vizRect = vizWrapper.getBoundingClientRect();
+                        const segRect = seg.getBoundingClientRect();
+                        vizWrapper.style.position = 'relative';
+                        vizWrapper.appendChild(tip);
+                        const tipW = 280;
+                        // Center on segment, clamp within vizWrapper width
+                        let left = (segRect.left + segRect.width / 2) - vizRect.left - tipW / 2;
+                        left = Math.max(8, Math.min(left, vizRect.width - tipW - 8));
+                        tip.style.left = left + 'px';
+                        tip.style.top = (segRect.bottom - vizRect.top + 14) + 'px';
+                        tip.style.width = tipW + 'px';
+                    }
+
+                    // Auto-dismiss after 4s
+                    setTimeout(() => document.querySelectorAll('.seg-tooltip,.seg-tooltip-backdrop').forEach(el => el.remove()), 4000);
+                };
+                seg.addEventListener('click', showTooltip);
+                seg.addEventListener('touchend', (e) => { e.preventDefault(); showTooltip(e); }, { passive: false });
+
 
                 const label = document.createElement('div');
                 label.className = 'label';
