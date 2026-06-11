@@ -146,12 +146,12 @@ body {
 
 .viz-wrapper {
     width: 100%;
-    overflow-x: auto;
+    overflow: hidden;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
 }
 .viz-wrapper::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
+    display: none;
 }
 
 .viz-container {
@@ -167,6 +167,10 @@ body {
     transform: skewX(-15deg);
     background: transparent;
     gap: 6px;
+    /* Extend beyond container on both sides so skewed edges bleed off-screen */
+    margin-left: -8vw;
+    margin-right: -8vw;
+    width: calc(100% + 16vw);
 }
 
 .segment {
