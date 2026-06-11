@@ -427,27 +427,56 @@
                 item.ondragend = (e) => handleDragEnd(e);
 
                 if (editingIndex === index) {
+                    const isMobileEdit = window.innerWidth <= 600;
                     item.innerHTML = `
-                        <div style="display:flex; gap:1rem; width:100%; align-items:center;">
-                            <input class="edit-input edit-name" type="text" value="${expense.name}" style="flex:2;">
-                            <input class="edit-input edit-amount" type="number" value="${expense.amount}" style="flex:1; text-align:right;">
-                            <span style="font-size:1.4rem; padding-right: 1rem;">${getCurrencySymbol()}</span>
-                            <button style="background:var(--text-color); color:white; border:none; padding:0.5rem 1rem; font-weight:900; cursor:pointer;" onclick="editingIndex=null; render();">OK</button>
+                        <div style="display:flex; flex-direction:column; gap:0.8rem; width:100%;">
+                            <input class="edit-input edit-name" type="text" value="${expense.name}"
+                                placeholder="${budget.lang === 'en' ? 'Category name' : 'Kategorie'}"
+                                style="width:100%; font-size:${isMobileEdit ? '1.2rem' : '1rem'};">
+                            <div style="display:flex; gap:0.8rem; align-items:center;">
+                                <input class="edit-input edit-amount" type="number" inputmode="decimal"
+                                    value="${expense.amount}"
+                                    style="flex:1; text-align:right; font-size:${isMobileEdit ? '1.4rem' : '1rem'};">
+                                <span style="font-size:1.4rem; font-weight:900;">${getCurrencySymbol()}</span>
+                                <button class="btn-ok-edit" data-idx="${index}"
+                                    style="background:var(--text-color); color:white; border:none;
+                                    padding:${isMobileEdit ? '1rem 1.6rem' : '0.5rem 1rem'};
+                                    font-weight:900; font-size:${isMobileEdit ? '1.1rem' : '1rem'};
+                                    cursor:pointer; min-height:${isMobileEdit ? '52px' : '36px'}; white-space:nowrap;">
+                                    ✓ OK
+                                </button>
+                            </div>
                         </div>
                     `;
-                    const nameInput = item.querySelector('.edit-name');
+                    const nameInput  = item.querySelector('.edit-name');
                     const amountInput = item.querySelector('.edit-amount');
-                    
+                    const okBtn = item.querySelector('.btn-ok-edit');
+
+                    // OK button: always read current values and save – reliable on both desktop & mobile
+                    const doSave = () => {
+                        const newName   = nameInput.value.trim() || expense.name;
+                        const newAmount = parseFloat(amountInput.value);
+                        if (!isNaN(newAmount) && newAmount >= 0) {
+                            finishEditing(index, newName, newAmount);
+                        } else {
+                            finishEditing(index, newName, expense.amount); // keep old amount if invalid
+                        }
+                    };
+
+                    okBtn.addEventListener('click', (e) => { e.stopPropagation(); doSave(); });
+                    okBtn.addEventListener('touchend', (e) => { e.preventDefault(); doSave(); });
+
+                    // Enter key also saves
                     [nameInput, amountInput].forEach(inp => {
-                        inp.onblur = (e) => {
-                            setTimeout(() => {
-                                if (editingIndex === index) finishEditing(index, nameInput.value, parseFloat(amountInput.value));
-                            }, 200);
-                        };
-                        inp.onkeydown = (e) => {
-                            if (e.key === 'Enter') finishEditing(index, nameInput.value, parseFloat(amountInput.value));
-                        };
+                        inp.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter') { e.preventDefault(); doSave(); }
+                            if (e.key === 'Escape') { editingIndex = null; render(); }
+                        });
                     });
+
+                    // Auto-focus name on open
+                    setTimeout(() => nameInput.focus(), 50);
+
                 } else {
                     const pct = budget.income > 0 ? ((expense.amount / budget.income) * 100).toFixed(1) : 0;
                     item.innerHTML = `
