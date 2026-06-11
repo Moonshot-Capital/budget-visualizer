@@ -2,8 +2,12 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budget Visualizer - Dein Finanz-Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#fafafa">
+    <title>Budget Visualizer</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -32,6 +36,8 @@
                     <div class="labels-bottom" id="labels-bottom"></div>
                 </div>
             </div>
+            <!-- Mobile legend (hidden on desktop via CSS) -->
+            <div class="mobile-legend" id="mobileLegend" style="display:none;"></div>
         </div>
     </section>
 
@@ -105,6 +111,12 @@
             </div>
         </div>
 
+        <div class="input-card reset-card">
+            <h2 data-i18n="resetTitle">Zurücksetzen</h2>
+            <p data-i18n="resetDesc" style="font-weight: 600; opacity: 0.6; margin-top: -1rem; margin-bottom: 1rem;">Alle Eingaben auf den Ausgangszustand zurücksetzen.</p>
+            <button class="btn-reset" id="btnReset" data-i18n="resetBtn">Daten zurücksetzen</button>
+        </div>
+
         <div class="signature">
             Markus S.
         </div>
@@ -160,7 +172,10 @@
                 deficit: "Defizit",
                 surplus: "Überschuss",
                 expenseListPdf: "Ausgabenliste:",
-                howItWorks: "Wie funktioniert das?"
+                howItWorks: "Wie funktioniert das?",
+                resetTitle: "Zurücksetzen",
+                resetDesc: "Alle Eingaben auf den Ausgangszustand zurücksetzen.",
+                resetBtn: "Daten zurücksetzen"
             },
             en: {
                 heroTitle: "Monthly",
@@ -187,7 +202,10 @@
                 deficit: "Deficit",
                 surplus: "Surplus",
                 expenseListPdf: "Expense List:",
-                howItWorks: "How it works?"
+                howItWorks: "How it works?",
+                resetTitle: "Reset",
+                resetDesc: "Reset all inputs back to the default state.",
+                resetBtn: "Reset Data"
             }
         };
 
@@ -196,6 +214,37 @@
             de: ['Essen', 'Miete', 'Internet', 'Handy', 'Versicherung', 'Freizeit', 'Auto', 'Gym', 'Abo', 'Sparen'],
             en: ['Food', 'Rent', 'Internet', 'Phone', 'Insurance', 'Leisure', 'Car', 'Gym', 'Subs', 'Savings']
         };
+
+        // Bidirectional expense category translations
+        // Each pair: [German name, English name]
+        const CATEGORY_PAIRS = [
+            ['Wohnen',                      'Housing'],
+            ['Freizeit & Lifestyle',        'Leisure & Lifestyle'],
+            ['Fortbildungen',               'Education'],
+            ['Studienkredit',               'Student Loan'],
+            ['Essen',                       'Food'],
+            ['Mobilität',                   'Mobility'],
+            ['Versicherungen & Sonstiges',  'Insurance & Misc'],
+            ['Kleidung & Körperpflege',     'Clothing'],
+            ['Miete',                       'Rent'],
+            ['Internet',                    'Internet'],
+            ['Handy',                       'Phone'],
+            ['Versicherung',                'Insurance'],
+            ['Freizeit',                    'Leisure'],
+            ['Auto',                        'Car'],
+            ['Gym',                         'Gym'],
+            ['Abo',                         'Subs'],
+            ['Sparen',                      'Savings'],
+        ];
+
+        function translateExpenses(targetLang) {
+            const fromIdx = targetLang === 'en' ? 0 : 1; // 0=DE, 1=EN
+            const toIdx   = targetLang === 'en' ? 1 : 0;
+            budget.expenses = budget.expenses.map(exp => {
+                const pair = CATEGORY_PAIRS.find(p => p[fromIdx].toLowerCase() === exp.name.toLowerCase());
+                return pair ? { ...exp, name: pair[toIdx] } : exp;
+            });
+        }
 
         const DEFAULT_DATA = {
             income: 4275,
@@ -254,6 +303,7 @@
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.lang === budget.lang);
             });
+            translateExpenses(budget.lang); // Auto-translate known category names
             initQuickAdd();
             render();
         }
@@ -347,6 +397,15 @@
             bar.innerHTML = '';
             labelsTop.innerHTML = '';
             labelsBottom.innerHTML = '';
+
+            // Guard: if income is missing or 0, show placeholder bar
+            if (!budget.income || budget.income <= 0) {
+                totalDisplay.textContent = formatCurrency(0);
+                bar.innerHTML = `<div style="width:100%;height:100%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;"><span style="font-size:1.4rem;font-weight:900;opacity:0.4;text-transform:uppercase;letter-spacing:2px;">← ${t('profileTitle')}</span></div>`;
+                return;
+            }
+            labelsTop.innerHTML = '';
+            labelsBottom.innerHTML = '';
             expenseList.innerHTML = '';
 
             totalDisplay.innerText = formatCurrency(budget.income);
@@ -400,6 +459,12 @@
             });
 
             // Render Segments
+            // Each segment gets a distinct gray shade so they're all visible
+            const segmentShades = [
+                '#c8c8c8', '#b0b0b0', '#d8d8d8', '#989898',
+                '#c0c0c0', '#a8a8a8', '#e0e0e0', '#909090'
+            ];
+
             budget.expenses.forEach((expense, index) => {
                 const width = (expense.amount / budget.income) * 100;
                 if (width <= 0) return;
@@ -407,6 +472,7 @@
                 const seg = document.createElement('div');
                 seg.className = 'segment';
                 seg.style.width = `${width}%`;
+                seg.style.background = segmentShades[index % segmentShades.length];
                 seg.dataset.index = index;
                 bar.appendChild(seg);
 
@@ -448,6 +514,37 @@
 
             saveState();
             setTimeout(positionLabels, 50);
+            renderMobileLegend();
+        }
+
+        function renderMobileLegend() {
+            const legend = document.getElementById('mobileLegend');
+            if (!legend) return;
+            legend.innerHTML = '';
+
+            const totalExpenses = budget.expenses.reduce((s, e) => s + e.amount, 0);
+            const balance = budget.income - totalExpenses;
+            const isDeficit = balance < 0;
+
+            // Segment colors (same order as bar)
+            const segColors = ['#e8e8e8','#d8d8d8','#cacaca','#bcbcbc','#aeaeae','#a0a0a0','#929292','#848484'];
+
+            const allItems = [
+                ...budget.expenses.map((e, i) => ({ name: e.name, amount: e.amount, color: segColors[i % segColors.length], isBalance: false })),
+                { name: isDeficit ? t('deficit') : t('surplus'), amount: Math.abs(balance), color: isDeficit ? '#ff4444' : 'var(--accent-yellow)', isBalance: true, isDeficit }
+            ];
+
+            allItems.forEach(item => {
+                if (item.amount <= 0) return;
+                const row = document.createElement('div');
+                row.className = 'mobile-legend-item';
+                row.innerHTML = `
+                    <span class="mobile-legend-dot" style="background:${item.color};"></span>
+                    <span class="mobile-legend-name">${item.name}</span>
+                    <span class="mobile-legend-value ${item.isBalance && !item.isDeficit ? 'surplus' : ''} ${item.isDeficit ? 'deficit' : ''}">${item.isBalance && !item.isDeficit ? '+' : '-'}${formatCurrency(item.amount)}</span>
+                `;
+                legend.appendChild(row);
+            });
         }
 
         function positionLabels() {
@@ -602,71 +699,358 @@
         });
 
         document.getElementById('btnDownloadIg').addEventListener('click', async () => {
-            const igContainer = document.getElementById('igExportContainer');
-            const totalDisplay = document.getElementById('totalDisplay').innerText;
-            const jobTitle = budget.job || '';
+            // Wait for fonts to be ready (Inter, Caveat)
+            await document.fonts.ready;
 
-            // Fill in header text
-            document.getElementById('igExportTotal').innerText = totalDisplay;
-            document.getElementById('igExportJob').innerText = jobTitle;
-            document.getElementById('igExportHeroTitle').innerText = t('heroTitle');
-
-            // Build the bar from actual budget data
-            const igBar = document.getElementById('igBar');
-            igBar.innerHTML = '';
+            const W = 1080, H = 1920, PAD = 90;
+            const YELLOW = '#f2ff00', BLACK = '#000000', WHITE = '#ffffff', RED = '#ff3d00';
+            const segColors = ['#c8c8c8','#b0b0b0','#d8d8d8','#989898','#c0c0c0','#a8a8a8','#e0e0e0','#909090'];
 
             const totalExpenses = budget.expenses.reduce((s, e) => s + e.amount, 0);
             const balance = budget.income - totalExpenses;
             const isDeficit = balance < 0;
+            const balLabel = isDeficit ? t('deficit') : t('surplus');
+            const fmt = (v) => formatCurrency(Math.abs(v));
 
-            // Segment colors matching the main page
-            const segColors = ['#e8e8e8','#d8d8d8','#cacaca','#bcbcbc','#aeaeae','#a0a0a0','#929292','#848484'];
-
-            // Expense segments
-            budget.expenses.forEach((exp, i) => {
-                const pct = (exp.amount / budget.income) * 100;
-                if (pct <= 0) return;
-                const el = document.createElement('div');
-                el.style.cssText = `flex:0 0 ${pct}%;background:${segColors[i % segColors.length]};height:100%;`;
-                igBar.appendChild(el);
-            });
-
-            // Balance segment (surplus = yellow, deficit = red)
-            const balancePct = (Math.abs(balance) / budget.income) * 100;
-            if (balancePct > 0) {
-                const balEl = document.createElement('div');
-                balEl.style.cssText = `flex:0 0 ${balancePct}%;background:${isDeficit ? '#ff4444' : 'var(--accent-yellow)'};height:100%;`;
-                igBar.appendChild(balEl);
+            // --- Helpers ---
+            function setupCanvas() {
+                const c = document.createElement('canvas');
+                c.width = W; c.height = H;
+                return c;
             }
 
-            // Add stripe pattern (diagonal lines via repeating-linear-gradient to each segment)
-            Array.from(igBar.children).forEach(seg => {
-                seg.style.backgroundImage = 'repeating-linear-gradient(135deg, transparent, transparent 18px, rgba(255,255,255,0.12) 18px, rgba(255,255,255,0.12) 20px)';
-                seg.style.backgroundBlendMode = 'overlay';
-            });
+            function drawBrandTag(ctx, x, y, bg, textColor) {
+                const text = 'BUDGET VISUALIZER';
+                ctx.save();
+                ctx.font = '900 30px Inter, Arial Black, sans-serif';
+                const tw = ctx.measureText(text).width;
+                const tagW = tw + 72, tagH = 52;
+                ctx.fillStyle = bg;
+                ctx.fillRect(x, y, tagW, tagH);
+                ctx.strokeStyle = textColor;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, tagW, tagH);
+                // dot
+                ctx.fillStyle = YELLOW;
+                ctx.beginPath(); ctx.arc(x + 22, y + tagH / 2, 8, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = textColor; ctx.lineWidth = 2; ctx.stroke();
+                // text
+                ctx.fillStyle = textColor;
+                ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+                ctx.fillText(text, x + 40, y + tagH / 2);
+                ctx.restore();
+                return tagH;
+            }
 
-            await new Promise(r => setTimeout(r, 300));
+            function drawSignature(ctx, x, y, color) {
+                ctx.save();
+                ctx.fillStyle = color; ctx.globalAlpha = 0.8;
+                ctx.font = 'italic 700 80px Georgia, serif';
+                ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+                ctx.translate(x, y); ctx.rotate(-0.04);
+                ctx.fillText('Markus S.', 0, 0);
+                ctx.restore();
+            }
 
-            const canvas = await html2canvas(igContainer, { 
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                width: 1080,
-                height: 1920
-            });
-            const link = document.createElement('a');
-            link.download = 'budget-instagram-story.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            // Draw skewed parallelogram bar
+            function drawBar(ctx, x, y, barW, barH, segs) {
+                const SKEW = Math.tan(15 * Math.PI / 180); // tan(15°)
+                const skewOffset = barH * SKEW;
+                let curX = x;
+                segs.forEach(seg => {
+                    const sw = (seg.pct / 100) * barW;
+                    if (sw <= 0.5) return;
+                    ctx.beginPath();
+                    ctx.moveTo(curX,              y + barH);
+                    ctx.lineTo(curX + sw,         y + barH);
+                    ctx.lineTo(curX + sw + skewOffset, y);
+                    ctx.lineTo(curX + skewOffset, y);
+                    ctx.closePath();
+                    ctx.fillStyle = seg.color;
+                    ctx.fill();
+                    curX += sw;
+                });
+            }
+
+            const barSegs = [
+                ...budget.expenses.map((e, i) => ({ pct: (e.amount / budget.income) * 100, color: segColors[i % segColors.length], name: e.name, amount: e.amount })),
+                { pct: (Math.abs(balance) / budget.income) * 100, color: isDeficit ? RED : YELLOW, name: balLabel, amount: Math.abs(balance), isBal: true }
+            ].filter(s => s.pct > 0);
+
+            // ==================== SLIDE 1: COVER ====================
+            function makeSlide1() {
+                const canvas = setupCanvas();
+                const ctx = canvas.getContext('2d');
+
+                // BG
+                ctx.fillStyle = BLACK; ctx.fillRect(0, 0, W, H);
+                // Yellow top stripe
+                ctx.fillStyle = YELLOW; ctx.fillRect(0, 0, W, 10);
+
+                // Brand tag
+                drawBrandTag(ctx, PAD, 70, BLACK, WHITE);
+
+                // Job title
+                let headerY = 220;
+                if (budget.job) {
+                    ctx.fillStyle = WHITE; ctx.globalAlpha = 0.45;
+                    ctx.font = '700 48px Inter, Arial, sans-serif';
+                    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+                    ctx.fillText(budget.job.toUpperCase(), PAD, headerY);
+                    ctx.globalAlpha = 1;
+                    headerY += 80;
+                }
+
+                // Monthly label
+                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.5;
+                ctx.font = '900 88px Inter, Arial Black, sans-serif';
+                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+                ctx.fillText(t('heroTitle').toUpperCase(), PAD, headerY);
+                ctx.globalAlpha = 1;
+
+                // Income – BIG
+                ctx.fillStyle = WHITE;
+                ctx.font = '900 160px Inter, Arial Black, sans-serif';
+                ctx.fillText(formatCurrency(budget.income), PAD, headerY + 100);
+
+                // Divider
+                const divY = headerY + 310;
+                ctx.strokeStyle = WHITE; ctx.globalAlpha = 0.15; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(PAD, divY); ctx.lineTo(W - PAD, divY); ctx.stroke();
+                ctx.globalAlpha = 1;
+
+                // Surplus / Deficit block
+                const s1Y = divY + 60;
+                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.45;
+                ctx.font = '700 34px Inter, Arial, sans-serif';
+                ctx.fillText(balLabel.toUpperCase(), PAD, s1Y);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = isDeficit ? RED : YELLOW;
+                ctx.font = '900 100px Inter, Arial Black, sans-serif';
+                ctx.fillText(`${isDeficit ? '−' : '+'}${fmt(balance)}`, PAD, s1Y + 44);
+
+                // Total expenses block
+                const s2Y = s1Y + 180;
+                const expLabel = budget.lang === 'en' ? 'TOTAL EXPENSES' : 'GESAMTAUSGABEN';
+                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.45;
+                ctx.font = '700 34px Inter, Arial, sans-serif';
+                ctx.fillText(expLabel, PAD, s2Y);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = WHITE;
+                ctx.font = '900 80px Inter, Arial Black, sans-serif';
+                ctx.fillText(formatCurrency(totalExpenses), PAD, s2Y + 44);
+
+                // Mini bar near bottom
+                const miniBarY = H - 420;
+                drawBar(ctx, PAD, miniBarY, W - PAD * 2, 70, barSegs);
+
+                // Expense count note
+                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.35;
+                ctx.font = '600 30px Inter, Arial, sans-serif';
+                ctx.fillText(`${budget.expenses.length} ${budget.lang === 'en' ? 'expense categories' : 'Ausgabe-Kategorien'}`, PAD, miniBarY + 100);
+                ctx.globalAlpha = 1;
+
+                drawSignature(ctx, W - PAD, H - 90, WHITE);
+                return canvas;
+            }
+
+            // ==================== SLIDE 2: BAR BREAKDOWN ====================
+            function makeSlide2() {
+                const canvas = setupCanvas();
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = WHITE; ctx.fillRect(0, 0, W, H);
+                ctx.fillStyle = BLACK; ctx.fillRect(0, 0, W, 10);
+
+                drawBrandTag(ctx, PAD, 70, WHITE, BLACK);
+
+                // Title
+                ctx.fillStyle = BLACK; ctx.globalAlpha = 0.45;
+                ctx.font = '700 38px Inter, Arial, sans-serif';
+                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+                ctx.fillText(budget.lang === 'en' ? 'BUDGET BREAKDOWN' : 'BUDGET ÜBERSICHT', PAD, 190);
+                ctx.globalAlpha = 1;
+
+                // Income
+                ctx.fillStyle = BLACK;
+                ctx.font = '900 110px Inter, Arial Black, sans-serif';
+                ctx.fillText(formatCurrency(budget.income), PAD, 240);
+
+                // BIG bar
+                const barY = 420, barW = W - PAD * 2, barH = 150;
+                drawBar(ctx, PAD, barY, barW, barH, barSegs);
+
+                // List of segments below bar
+                const listY = barY + barH + 80;
+                const rowH = Math.min(90, (H - listY - 200) / barSegs.length);
+
+                barSegs.forEach((seg, i) => {
+                    const y = listY + i * rowH;
+                    if (y > H - 220) return;
+
+                    // Color dot
+                    ctx.fillStyle = seg.color;
+                    ctx.beginPath(); ctx.arc(PAD + 12, y + 16, 12, 0, Math.PI * 2); ctx.fill();
+                    if (seg.color === YELLOW) {
+                        ctx.strokeStyle = BLACK; ctx.lineWidth = 2; ctx.stroke();
+                    }
+
+                    // Name
+                    ctx.fillStyle = BLACK; ctx.globalAlpha = 0.5;
+                    ctx.font = '700 30px Inter, Arial, sans-serif';
+                    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+                    ctx.fillText(seg.name.toUpperCase(), PAD + 36, y);
+                    ctx.globalAlpha = 1;
+
+                    // Amount
+                    ctx.font = '900 36px Inter, Arial Black, sans-serif';
+                    ctx.fillStyle = seg.isBal ? (isDeficit ? RED : '#5a7a00') : BLACK;
+                    ctx.textAlign = 'right';
+                    ctx.fillText(`${seg.isBal && !isDeficit ? '+' : '−'}${formatCurrency(seg.amount)}`, W - PAD, y);
+
+                    // Pct bar track
+                    ctx.fillStyle = BLACK; ctx.globalAlpha = 0.07;
+                    ctx.fillRect(PAD + 36, y + 44, W - PAD * 2 - 36, 6);
+                    ctx.fillStyle = seg.color; ctx.globalAlpha = 0.9;
+                    ctx.fillRect(PAD + 36, y + 44, (W - PAD * 2 - 36) * seg.pct / 100, 6);
+                    ctx.globalAlpha = 1; ctx.textAlign = 'left';
+                });
+
+                drawSignature(ctx, W - PAD, H - 90, BLACK);
+                return canvas;
+            }
+
+            // ==================== SLIDE 3: EXPENSE LIST ====================
+            function makeSlide3() {
+                const canvas = setupCanvas();
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, W, H);
+                ctx.fillStyle = YELLOW; ctx.fillRect(0, 0, W, 10);
+
+                drawBrandTag(ctx, PAD, 70, '#111111', WHITE);
+
+                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.45;
+                ctx.font = '700 38px Inter, Arial, sans-serif';
+                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+                ctx.fillText(budget.lang === 'en' ? 'YOUR EXPENSES' : 'DEINE AUSGABEN', PAD, 190);
+                ctx.globalAlpha = 1;
+
+                const listStartY = 270;
+                const listEndY   = H - 300;
+                const availH     = listEndY - listStartY;
+                const rowH       = availH / budget.expenses.length;
+
+                budget.expenses.forEach((exp, i) => {
+                    const y = listStartY + i * rowH;
+
+                    // Row BG (alternate)
+                    ctx.fillStyle = WHITE; ctx.globalAlpha = i % 2 === 0 ? 0.03 : 0;
+                    ctx.fillRect(0, y, W, rowH);
+                    ctx.globalAlpha = 1;
+
+                    // Number badge
+                    ctx.fillStyle = YELLOW;
+                    ctx.font = '900 26px Inter, Arial Black, sans-serif';
+                    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+                    ctx.fillText(String(i + 1).padStart(2, '0'), PAD, y + 12);
+
+                    // Name
+                    ctx.fillStyle = WHITE;
+                    ctx.font = '700 42px Inter, Arial, sans-serif';
+                    ctx.fillText(exp.name.toUpperCase(), PAD + 68, y + 4);
+
+                    // % of income
+                    const pct = ((exp.amount / budget.income) * 100).toFixed(1);
+                    ctx.fillStyle = WHITE; ctx.globalAlpha = 0.35;
+                    ctx.font = '600 28px Inter, Arial, sans-serif';
+                    ctx.fillText(`${pct}%`, PAD + 68, y + 56);
+                    ctx.globalAlpha = 1;
+
+                    // Amount
+                    ctx.fillStyle = segColors[i % segColors.length];
+                    ctx.font = '900 46px Inter, Arial Black, sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(`−${formatCurrency(exp.amount)}`, W - PAD, y + 10);
+
+                    // Divider
+                    ctx.strokeStyle = WHITE; ctx.globalAlpha = 0.08; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.moveTo(PAD, y + rowH - 1); ctx.lineTo(W - PAD, y + rowH - 1); ctx.stroke();
+                    ctx.globalAlpha = 1; ctx.textAlign = 'left';
+                });
+
+                // Bottom summary
+                const sumY = listEndY + 30;
+                ctx.strokeStyle = WHITE; ctx.globalAlpha = 0.2; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(PAD, sumY - 10); ctx.lineTo(W - PAD, sumY - 10); ctx.stroke();
+                ctx.globalAlpha = 1;
+
+                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.4;
+                ctx.font = '700 30px Inter, Arial, sans-serif';
+                ctx.fillText(budget.lang === 'en' ? 'TOTAL' : 'GESAMT', PAD, sumY);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = WHITE; ctx.font = '900 72px Inter, Arial Black, sans-serif';
+                ctx.fillText(formatCurrency(totalExpenses), PAD, sumY + 40);
+
+                ctx.fillStyle = isDeficit ? RED : YELLOW; ctx.globalAlpha = 0.4;
+                ctx.font = '700 30px Inter, Arial, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(balLabel.toUpperCase(), W - PAD, sumY);
+                ctx.globalAlpha = 1;
+                ctx.font = '900 72px Inter, Arial Black, sans-serif';
+                ctx.fillStyle = isDeficit ? RED : YELLOW;
+                ctx.fillText(`${isDeficit ? '−' : '+'}${fmt(balance)}`, W - PAD, sumY + 40);
+                ctx.textAlign = 'left';
+
+                drawSignature(ctx, W - PAD, H - 60, WHITE);
+                return canvas;
+            }
+
+            // Generate all 3 slides and download
+            const slides = [
+                { canvas: makeSlide1(), file: 'story-1-cover.png' },
+                { canvas: makeSlide2(), file: 'story-2-breakdown.png' },
+                { canvas: makeSlide3(), file: 'story-3-expenses.png' }
+            ];
+
+            for (let i = 0; i < slides.length; i++) {
+                await new Promise(r => setTimeout(r, i * 400));
+                const a = document.createElement('a');
+                a.download = slides[i].file;
+                a.href = slides[i].canvas.toDataURL('image/png');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
         });
 
 
+        // --- Reset Logic ---
+        document.getElementById('btnReset').addEventListener('click', () => {
+            if (!confirm(budget.lang === 'de'
+                ? 'Alle Daten wirklich zurücksetzen? Das kann nicht rückgängig gemacht werden.'
+                : 'Really reset all data? This cannot be undone.')) return;
+            
+            localStorage.removeItem('myBudget');
+            budget = JSON.parse(JSON.stringify(DEFAULT_DATA)); // deep copy
+            
+            // Reset form fields
+            document.getElementById('incomeInput').value = budget.income;
+            document.getElementById('jobInput').value = '';
+            document.getElementById('annualSalaryInput').value = '';
+            document.getElementById('currencyInput').value = budget.currency;
+            
+            updateLanguage();
+        });
+
         window.addEventListener('load', () => {
+            // Make sure income is always valid on load
+            if (!budget.income || budget.income <= 0) {
+                budget.income = DEFAULT_DATA.income;
+            }
             document.getElementById('incomeInput').value = budget.income;
             document.getElementById('jobInput').value = budget.job || '';
             document.getElementById('annualSalaryInput').value = budget.annualSalary || '';
-            document.getElementById('currencyInput').value = budget.currency || 'EUR';
-            updateLanguage(); // This calls initQuickAdd and render too
+            document.getElementById('currencyInput').value = budget.currency || 'USD';
+            updateLanguage();
         });
         window.addEventListener('resize', positionLabels);
     </script>

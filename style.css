@@ -5,9 +5,9 @@
     --text-color: #000000;
     --accent-yellow: #f2ff00;
     --accent-red: #ff3d00;
-    --gray-light: #f0f0f0;
-    --gray-medium: #e0e0e0;
-    --gray-dark: #b0b0b0;
+    --gray-light: #d0d0d0;
+    --gray-medium: #b8b8b8;
+    --gray-dark: #909090;
     --glass-bg: rgba(255, 255, 255, 0.9);
     --glass-border: rgba(0, 0, 0, 0.08);
     --font-main: 'Inter', sans-serif;
@@ -27,7 +27,7 @@ body {
     display: flex;
     flex-direction: column;
     margin: 0;
-    overflow-x: hidden;
+    overflow-x: hidden; /* Prevent horizontal scrollbar from skewed bar */
 }
 
 /* Language Switch */
@@ -105,6 +105,7 @@ body {
     justify-content: center;
     align-items: center;
     padding: 10vh 5vw;
+    padding-top: max(10vh, 6rem); /* Extra space for fixed nav buttons */
     box-sizing: border-box;
 }
 
@@ -146,8 +147,10 @@ body {
 
 .viz-wrapper {
     width: 100%;
-    overflow: hidden;
-    -webkit-overflow-scrolling: touch;
+    /* Padding gives room for skewX edges on both sides */
+    padding: 0 80px;
+    box-sizing: border-box;
+    overflow: visible;
     scrollbar-width: none;
 }
 .viz-wrapper::-webkit-scrollbar {
@@ -167,10 +170,6 @@ body {
     transform: skewX(-15deg);
     background: transparent;
     gap: 6px;
-    /* Extend beyond container on both sides so skewed edges bleed off-screen */
-    margin-left: -8vw;
-    margin-right: -8vw;
-    width: calc(100% + 16vw);
 }
 
 .segment {
@@ -372,6 +371,37 @@ body {
     color: white;
 }
 
+.reset-card {
+    border-color: #ccc;
+    box-shadow: none;
+    opacity: 0.75;
+    transition: opacity 0.2s;
+}
+
+.reset-card:hover {
+    opacity: 1;
+}
+
+.btn-reset {
+    background: white;
+    border: 3px solid var(--accent-red);
+    color: var(--accent-red);
+    padding: 1.5rem 2rem;
+    font-family: var(--font-main);
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    width: 100%;
+}
+
+.btn-reset:hover {
+    background: var(--accent-red);
+    color: white;
+}
+
 /* Intro Banner */
 .intro-banner {
     background: var(--accent-yellow);
@@ -518,25 +548,164 @@ body {
     display: block;
 }
 
-/* Responsive adjustments */
+/* ============================================
+   RESPONSIVE – TABLET (≤ 1024px)
+   ============================================ */
 @media (max-width: 1024px) {
     .header h1 { font-size: 3rem; }
     .header .amount { font-size: 4.5rem; }
     .label .value { font-size: 2.5rem; }
     .bar { height: 160px; }
+    .editor-section { padding: 2rem 5vw 4rem; gap: 1.5rem; }
 }
 
-@media (max-width: 768px) {
-    .hero-section { padding-left: 0; padding-right: 0; overflow-x: hidden; }
-    .container { transform: rotate(0); padding: 2rem 0; width: 100%; max-width: 100%; }
-    .header { padding: 0 5vw; }
-    .header h1 { font-size: 2rem; }
-    .header .amount { font-size: 3rem; }
-    .label .value { font-size: 1.8rem; }
-    .label .name { font-size: 0.8rem; }
-    .viz-wrapper { padding: 0 5vw; box-sizing: border-box; }
-    .viz-container { min-width: 800px; margin-top: 8rem; }
+/* ============================================
+   RESPONSIVE – MOBILE (≤ 600px)
+   App-like layout: floating labels hidden,
+   replaced by a clean legend list.
+   ============================================ */
+@media (max-width: 600px) {
+
+    /* --- Global --- */
+    body { font-size: 14px; }
+
+    /* --- Fixed UI --- */
+    .lang-switch { top: 1rem; right: 4vw; }
+    .header-links { top: 1rem; left: 4vw; }
+    .nav-link { padding: 0.4rem 0.7rem; font-size: 0.85rem; }
+    .lang-btn { padding: 0.4rem 0.7rem; font-size: 0.85rem; }
+
+    /* --- Hero Section --- */
+    .hero-section {
+        padding-left: 0;
+        padding-right: 0;
+        min-height: auto;
+        padding-bottom: 3rem;
+    }
+    .container {
+        transform: rotate(0deg);
+        padding: 7rem 0 1rem;
+        width: 100%;
+        max-width: 100%;
+    }
+    .header {
+        padding: 0 5vw;
+        margin-bottom: 1rem;
+    }
+    .header h1 {
+        font-size: clamp(1.8rem, 8vw, 3rem);
+        letter-spacing: -2px;
+    }
+    .header .amount {
+        font-size: clamp(3rem, 14vw, 6rem);
+        letter-spacing: -4px;
+    }
+
+    /* --- Bar --- */
+    .viz-wrapper {
+        padding: 0 70px;
+        box-sizing: border-box;
+        overflow: visible;
+    }
+    .bar {
+        height: 90px;
+    }
+    .viz-container {
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    /* --- Hide floating labels on mobile (too cramped) --- */
+    .labels-top,
+    .labels-bottom {
+        display: none;
+    }
+
+    /* --- Mobile legend list shown instead --- */
+    .mobile-legend {
+        display: flex !important;
+        flex-direction: column;
+        gap: 0.6rem;
+        padding: 0 5vw 1.5rem;
+        margin-top: 1rem;
+    }
+    .mobile-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    .mobile-legend-dot {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0;
+        border: 2px solid var(--text-color);
+    }
+    .mobile-legend-name {
+        flex: 1;
+        opacity: 0.7;
+    }
+    .mobile-legend-value {
+        font-weight: 900;
+        letter-spacing: -0.5px;
+    }
+    .mobile-legend-value.surplus { color: #7a7a00; }
+    .mobile-legend-value.deficit { color: var(--accent-red); }
+
+    /* --- Editor Section --- */
+    .editor-section {
+        padding: 1.5rem 4vw 6rem;
+        gap: 1rem;
+    }
+    .input-card {
+        padding: 1.5rem;
+        gap: 1rem;
+        border-width: 3px;
+        box-shadow: 8px 8px 0px rgba(0,0,0,0.07);
+    }
+    .input-card h2 {
+        font-size: 1.6rem;
+        letter-spacing: -1px;
+    }
+
+    /* --- Profile grid: stack on mobile --- */
+    .input-card > div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+    .input-card > div[style*="grid-template-columns: 2fr 1fr"] {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* --- Buttons: bigger tap targets --- */
+    .btn-add, .btn-export, .btn-reset {
+        padding: 1.4rem;
+        font-size: 1.1rem;
+        min-height: 56px;
+    }
+
+    /* --- Expense list items --- */
+    .expense-item {
+        padding: 1rem 1.2rem;
+        font-size: 1rem;
+        min-height: 56px;
+    }
+
+    /* --- Chips --- */
+    .chip {
+        padding: 0.7rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    /* --- Signature --- */
+    .signature {
+        font-size: 2.2rem;
+        margin-top: 2rem;
+    }
 }
+
 
 /* ============================================
    INSTAGRAM STORY EXPORT (1080 x 1920px, 9:16)
