@@ -11,7 +11,8 @@
     "build:fast": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "build:pages": "tsc --noEmit && vite build --outDir docs --emptyOutDir"
   },
   "dependencies": {
     "clsx": "2.1.1",

@@ -6,6 +6,14 @@ Budget als geneigten Balken zeigt – plus die Marketing-Seiten drumherum.
 Kein Konto, kein Backend, keine Datenbank. Alle Daten bleiben im `localStorage`
 deines Browsers.
 
+> ### Weiße Seite auf GitHub Pages?
+> Dann zeigt Pages auf die **Quelldateien** statt auf den gebauten Stand.
+> GitHub Pages führt kein `npm run build` aus. Zwei Lösungen, beide liegen
+> fertig bei – Details unter [Veröffentlichen](#veröffentlichen):
+> **Settings → Pages → Source: „GitHub Actions“** (nutzt
+> `.github/workflows/deploy.yml`), oder **Source: Branch `main`, Ordner
+> `/docs`** (nutzt den mitgelieferten Ordner `docs/`).
+
 ---
 
 ## Was in Version 5 neu ist
@@ -43,6 +51,7 @@ npm run dev      # http://localhost:5173
 |---|---|
 | `npm run dev` | Entwicklungsserver mit Hot Reload |
 | `npm run build` | Typprüfung + Produktionsbuild nach `dist/` |
+| `npm run build:pages` | dasselbe, aber nach `docs/` – für GitHub Pages ohne CI |
 | `npm run preview` | gebauten Stand lokal ansehen |
 | `npm run typecheck` | nur `tsc --noEmit` |
 
@@ -109,10 +118,45 @@ zu viel, schlägt `npm run build` fehl. Das ist die Absicht.
 
 ## Veröffentlichen
 
-Der Build nutzt `base: "./"`, die Ausgabe ist also ortsunabhängig – sie läuft im
-Repo-Unterordner, auf einer eigenen Domain und lokal per Doppelklick.
+> **Wichtig:** Das ist ein Vite-Projekt. GitHub Pages baut nichts – wer die
+> Quelldateien hochlädt und Pages auf den Repo-Root stellt, bekommt eine
+> **weiße Seite**, weil `index.html` dann auf `/src/entries/home.tsx` zeigt.
+> Es muss immer der *gebaute* Stand ausgeliefert werden.
 
-**Ins Repository bringen:**
+Es gibt zwei Wege. Beide sind vorbereitet, du brauchst nur einen.
+
+### Weg A – GitHub Actions (empfohlen)
+
+`.github/workflows/deploy.yml` liegt bei. Er baut bei jedem Push auf `main`
+und veröffentlicht das Ergebnis.
+
+1. Repository pushen (inklusive `src/`, `package.json`, `package-lock.json`).
+2. **Settings → Pages → Build and deployment → Source: „GitHub Actions“**
+3. Fertig. Jeder weitere Push aktualisiert die Seite automatisch.
+
+### Weg B – Ordner `docs/` (ohne CI)
+
+Für den Fall, dass du keine Actions nutzen willst:
+
+```bash
+npm run build:pages     # baut nach docs/ statt dist/
+```
+
+1. `docs/` mit committen (ist bewusst **nicht** in `.gitignore`).
+2. **Settings → Pages → Source: „Deploy from a branch“, Branch `main`, Ordner `/docs`**
+3. Nach jeder Änderung `npm run build:pages` und neu committen.
+
+Ein fertig gebautes `docs/` liegt dem Projekt bereits bei – damit ist die Seite
+sofort online, auch bevor du irgendetwas baust.
+
+### Pfade
+
+Der Build nutzt `base: "./"`, die Ausgabe ist also ortsunabhängig: sie läuft
+unter `<user>.github.io/<repo>/`, auf einer eigenen Domain und lokal per
+Doppelklick. `public/.nojekyll` verhindert, dass Pages die Dateien durch Jekyll
+schickt.
+
+### Ins Repository bringen
 
 ```bash
 git init
@@ -123,18 +167,9 @@ git remote add origin git@github.com:<user>/<repo>.git
 git push -u origin main
 ```
 
-`dist/` ist über `.gitignore` ausgeschlossen. Wer die gebaute Version im Repo
-haben will (etwa für Pages aus `/docs`), nimmt die Zeile dort heraus.
+### Andere Hoster
 
-**GitHub Pages, von Hand:** `npm run build`, dann den Inhalt von `dist/` in den
-Branch `gh-pages` oder in `/docs` auf `main` legen und unter
-*Settings → Pages* als Quelle auswählen.
-
-**GitHub Pages, automatisch:** Workflow anlegen, der bei jedem Push auf `main`
-`npm ci && npm run build` ausführt und `dist/` per
-`actions/deploy-pages` veröffentlicht.
-
-**Netlify / Vercel / Cloudflare Pages:** Build-Befehl `npm run build`,
+Netlify, Vercel, Cloudflare Pages: Build-Befehl `npm run build`,
 Ausgabeverzeichnis `dist`.
 
 ---
@@ -186,6 +221,9 @@ npm run build
 npm i -D playwright && npx playwright install chromium
 npm run verify
 ```
+
+`scripts/pages-check.mjs` prüft zusätzlich den `docs/`-Build unter einem
+Unterpfad – also genau so, wie GitHub Pages ein Projekt-Repository ausliefert.
 
 Playwright ist absichtlich keine Projekt-Abhängigkeit – sein `postinstall`
 lädt Browser herunter, und dafür gibt es beim normalen Bauen keinen Grund.
