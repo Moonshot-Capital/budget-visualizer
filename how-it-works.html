@@ -1,126 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
-    <title>How it works – Budget Visualizer</title>
-    <link rel="icon" type="image/svg+xml" href="logo.svg">
-    <link rel="stylesheet" href="style.v3.css">
-    <script>
-        (function () { try { var s = JSON.parse(localStorage.getItem('myBudget') || '{}'); if (s.theme === 'dark' || s.theme === 'light') document.documentElement.dataset.theme = s.theme; } catch (e) {} })();
-    </script>
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="In drei Schritten vom Nettoeinkommen zum fertigen Budget-Bild." />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href="./logo.svg" />
+    <title>So funktioniert's – Budget Visualizer</title>
     <style>
-        body { padding-bottom: 0; }
-        .tut { width: min(100% - 2 * var(--sp-4), 880px); margin: 0 auto; padding: var(--sp-6) 0 var(--sp-8); display: grid; gap: var(--sp-4); }
-        .tut-hero { padding: var(--sp-6) 0 var(--sp-4); }
-        .tut-hero h1 { font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; font-size: clamp(2.4rem, 8vw, 4.5rem); line-height: .95; }
-        .tut-hero p { margin-top: var(--sp-3); color: var(--ink-2); font-weight: 600; max-width: 60ch; }
-        .step { grid-template-columns: 56px 1fr; column-gap: var(--sp-4); row-gap: 8px; align-items: start; }
-        .step-num { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: var(--yellow); color: #0a0a0a; border: var(--border-w) solid #0a0a0a; font-weight: 900; font-size: 1.3rem; grid-row: span 2; }
-        .step h3 { font-weight: 900; text-transform: uppercase; letter-spacing: -.02em; font-size: 1.2rem; }
-        .step p { color: var(--ink-2); font-weight: 600; line-height: 1.55; }
-        .kbd { display: inline-block; border: 2px solid var(--line); padding: 0 6px; font-size: .8em; font-weight: 800; }
-        .tut-cta { display: flex; justify-content: flex-start; margin-top: var(--sp-3); }
-        @media (min-width: 640px) { .tut { width: min(100% - 2 * var(--sp-5), 880px); padding-top: var(--sp-7); } }
+      html { background: #fff }
+      html[data-theme="dark"] { background: #0f0f0f }
     </style>
-</head>
-<body>
-<header class="topbar">
-    <a class="brand" href="index.html"><svg class="logo-mark" viewBox="0 0 64 64" width="22" height="22" aria-hidden="true" style="width:22px;height:22px;flex:0 0 auto;display:block"><rect x="4" y="4" width="56" height="56" fill="#f2ff00" stroke="currentColor" stroke-width="5"/><path d="M16 46 L28 34 L36 42 L50 22" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/></svg><span class="brand-text">Budget<span class="brand-thin"> Visualizer</span></span></a>
-    <nav class="topbar-actions">
-        <a href="blog.html" class="btn btn-ghost btn-sm hide-xs" data-i18n="blogLink">Blog</a>
-        <a href="index.html" class="btn btn-ghost btn-sm" data-i18n="backLink">← Back</a>
-        <div class="seg-control" role="group" aria-label="Language">
-            <button class="seg-btn lang-btn" data-lang="de" type="button">DE</button>
-            <button class="seg-btn lang-btn" data-lang="en" type="button">EN</button>
-        </div>
-    </nav>
-</header>
-
-<main class="tut">
-    <div class="tut-hero">
-        <h1 data-i18n="title">How it works</h1>
-        <p data-i18n="intro">Three steps to see exactly where your money goes. No account, no upload – everything stays in your browser.</p>
-    </div>
-
-    <article class="card step">
-        <span class="step-num">1</span>
-        <h3 data-i18n="s1t">Set up your profile</h3>
-        <p data-i18n="s1d">Enter your monthly net income (or your annual salary – the other value is calculated for you), pick a currency and optionally your job title. Use the Monthly / Yearly toggle in the header to switch the whole view.</p>
-    </article>
-
-    <article class="card step">
-        <span class="step-num">2</span>
-        <h3 data-i18n="s2t">Add your expenses</h3>
-        <p data-i18n="s2d">Type a description and an amount, or tap a quick-add chip. Tap any expense to edit it, use the arrows or drag to reorder, and “Sort by amount” for an instant ranking. Deleted something by accident? Hit Undo in the toast.</p>
-    </article>
-
-    <article class="card step">
-        <span class="step-num">3</span>
-        <h3 data-i18n="s3t">Read, share, export</h3>
-        <p data-i18n="s3d">The bar and the KPI cards (expenses, surplus, savings rate, largest item) update live. Tap a segment for details. Export a PDF report, three Instagram story slides, or copy a link that encodes your whole budget – open it on any device to continue there.</p>
-    </article>
-
-    <div class="tut-cta">
-        <a href="index.html" class="btn btn-primary" data-i18n="cta">Open the visualizer</a>
-    </div>
-</main>
-
-<footer class="site-footer">
-    <div class="footer-inner">
-        <div class="footer-id">
-            <a class="footer-brand" href="index.html"><svg class="logo-mark" viewBox="0 0 64 64" width="30" height="30" aria-hidden="true" style="width:30px;height:30px;flex:0 0 auto;display:block"><rect x="4" y="4" width="56" height="56" fill="#f2ff00" stroke="currentColor" stroke-width="5"/><path d="M16 46 L28 34 L36 42 L50 22" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/></svg><span>Budget<span class="brand-thin"> Visualizer</span></span></a>
-            <p class="footer-note" data-i18n="footerNote">Kostenlose Beta – ohne Konto, ohne Werbung. Alles bleibt in deinem Browser.</p>
-        </div>
-        <nav class="footer-nav" aria-label="Footer">
-            <a class="footer-chip is-primary" href="index.html"><span data-i18n="navApp">Visualizer</span></a>
-            <a class="footer-chip" href="how-it-works.html"><span data-i18n="howItWorks">So funktioniert’s</span></a>
-            <a class="footer-chip" href="blog.html"><span data-i18n="blogLink">Blog</span></a>
-            <a class="footer-chip" href="feedback.html"><span data-i18n="feedbackLink">Feedback</span></a>
-            <a class="footer-chip" href="support.html"><span data-i18n="supportLink">Projekt unterstützen</span></a>
-        </nav>
-    </div>
-</footer>
-
-<script>
-    const TR = {
-        de: {
-            backLink: '\u2190 Zur\u00fcck', blogLink: 'Blog', navApp: 'Visualizer', feedbackLink: 'Feedback', supportLink: 'Projekt unterst\u00fctzen', footerNote: 'Kostenlose Beta \u2013 ohne Konto, ohne Werbung. Alles bleibt in deinem Browser.', howItWorks: 'So funktioniert\u2019s', title: 'So funktioniert\u2019s',
-            intro: 'Drei Schritte, um genau zu sehen, wohin dein Geld flie\u00dft. Kein Konto, kein Upload \u2013 alles bleibt in deinem Browser.',
-            s1t: 'Profil einrichten',
-            s1d: 'Trage dein monatliches Netto ein (oder dein Jahresgehalt \u2013 der andere Wert wird berechnet), w\u00e4hle die W\u00e4hrung und optional deinen Beruf. Mit dem Monat/Jahr-Schalter im Kopfbereich wechselst du die gesamte Ansicht.',
-            s2t: 'Ausgaben hinzuf\u00fcgen',
-            s2d: 'Bezeichnung und Betrag eingeben oder einen Schnell-Baustein antippen. Jede Ausgabe l\u00e4sst sich per Tipp bearbeiten, mit den Pfeilen oder per Drag sortieren \u2013 oder mit \u201eNach Betrag sortieren\u201c sofort ranken. Versehentlich gel\u00f6scht? R\u00fcckg\u00e4ngig in der Meldung.',
-            s3t: 'Lesen, teilen, exportieren',
-            s3d: 'Balken und Kennzahlen (Ausgaben, \u00dcberschuss, Sparquote, gr\u00f6\u00dfter Posten) aktualisieren sich live. Tippe ein Segment f\u00fcr Details. Exportiere einen PDF-Report, drei Instagram-Story-Slides oder kopiere einen Link, der dein gesamtes Budget enth\u00e4lt \u2013 auf jedem Ger\u00e4t weiterarbeiten.',
-            cta: 'Visualizer \u00f6ffnen'
-        },
-        en: {
-            backLink: '\u2190 Back', blogLink: 'Blog', navApp: 'Visualizer', feedbackLink: 'Feedback', supportLink: 'Support the project', footerNote: 'Free beta \u2013 no account, no ads. Everything stays in your browser.', howItWorks: 'How it works', title: 'How it works',
-            intro: 'Three steps to see exactly where your money goes. No account, no upload \u2013 everything stays in your browser.',
-            s1t: 'Set up your profile',
-            s1d: 'Enter your monthly net income (or your annual salary \u2013 the other value is calculated for you), pick a currency and optionally your job title. Use the Monthly / Yearly toggle in the header to switch the whole view.',
-            s2t: 'Add your expenses',
-            s2d: 'Type a description and an amount, or tap a quick-add chip. Tap any expense to edit it, use the arrows or drag to reorder, and \u201cSort by amount\u201d for an instant ranking. Deleted something by accident? Hit Undo in the toast.',
-            s3t: 'Read, share, export',
-            s3d: 'The bar and the KPI cards (expenses, surplus, savings rate, largest item) update live. Tap a segment for details. Export a PDF report, three Instagram story slides, or copy a link that encodes your whole budget \u2013 open it on any device to continue there.',
-            cta: 'Open the visualizer'
-        }
-    };
-    let lang = (JSON.parse(localStorage.getItem('myBudget') || '{}').lang) || 'en';
-    function apply() {
-        document.documentElement.lang = lang;
-        document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = TR[lang][el.dataset.i18n]);
-        document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
-    }
-    document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => {
-        lang = b.dataset.lang;
-        const s = JSON.parse(localStorage.getItem('myBudget') || '{}'); s.lang = lang; localStorage.setItem('myBudget', JSON.stringify(s));
-        apply();
-    }));
-    apply();
-</script>
-</body>
+    <script>
+      // Theme vor dem ersten Paint setzen – verhindert das weiße Aufblitzen im
+      // Dark Mode. "auto" wird hier schon aufgelöst, damit data-theme immer
+      // einen konkreten Wert hat (siehe @custom-variant dark in index.css).
+      try {
+        var s = JSON.parse(localStorage.getItem("myBudget") || "{}");
+        var pref = s.theme === "dark" || s.theme === "light" ? s.theme : "auto";
+        var isDark = pref === "dark" || (pref === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = isDark ? "dark" : "light";
+        if (s.lang === "de" || s.lang === "en") document.documentElement.lang = s.lang;
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/entries/howItWorks.tsx"></script>
+  </body>
 </html>

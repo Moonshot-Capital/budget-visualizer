@@ -1,88 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Kostenlos, werbefrei, ohne Datensammlung. So kannst du das Projekt weiterbringen." />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href="./logo.svg" />
     <title>Projekt unterstützen – Budget Visualizer</title>
-    <link rel="icon" type="image/svg+xml" href="logo.svg">
-    <link rel="stylesheet" href="style.v3.css">
-    <script>
-        (function () { try { var s = JSON.parse(localStorage.getItem('myBudget') || '{}'); if (s.theme === 'dark' || s.theme === 'light') document.documentElement.dataset.theme = s.theme; } catch (e) {} })();
-    </script>
     <style>
-        body { padding-bottom: 0; }
+      html { background: #fff }
+      html[data-theme="dark"] { background: #0f0f0f }
     </style>
-</head>
-<body>
-<header class="topbar">
-    <a class="brand" href="index.html"><svg class="logo-mark" viewBox="0 0 64 64" width="22" height="22" aria-hidden="true" style="width:22px;height:22px;flex:0 0 auto;display:block"><rect x="4" y="4" width="56" height="56" fill="#f2ff00" stroke="currentColor" stroke-width="5"/><path d="M16 46 L28 34 L36 42 L50 22" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/></svg><span class="brand-text">Budget<span class="brand-thin"> Visualizer</span></span></a>
-    <nav class="topbar-actions">
-        <a href="blog.html" class="btn btn-ghost btn-sm hide-xs" data-i18n="blogLink">Blog</a>
-        <a href="index.html" class="btn btn-ghost btn-sm" data-i18n="backLink">← Visualizer</a>
-        <div class="seg-control" role="group" aria-label="Language">
-            <button class="seg-btn lang-btn" data-lang="de" type="button">DE</button>
-            <button class="seg-btn lang-btn" data-lang="en" type="button">EN</button>
-        </div>
-    </nav>
-</header>
-
-<main class="page">
-<div data-lang-only="de">
-<section class="page-hero"><span class="eyebrow hl">Unabhängig</span><h1>Projekt unterstützen</h1><p>Der Budget Visualizer ist kostenlos, werbefrei und sammelt keine Daten. Damit das so bleibt, brauche ich kein Investment – sondern Menschen, die das Tool nutzen, weitersagen und ehrlich sagen, was fehlt.</p></section>
-<section class="action-grid">
-    <div class="card action"><span class="eyebrow">Am wertvollsten</span><h3>Feedback geben</h3><p>Was funktioniert, was nervt, was fehlt? Jede Nachricht fließt direkt in die nächste Version.</p><a class="btn btn-primary" href="feedback.html">Zum Feedback</a></div>
-    <div class="card action"><span class="eyebrow">Reichweite</span><h3>Weitersagen</h3><p>Schick den Link an eine Person, die gerade über Miete, Auto oder Sparen nachdenkt. Oder teile deinen eigenen Balken als Story.</p><button class="btn btn-ghost" type="button" data-share-site>Link teilen</button></div>
-    <div class="card action"><span class="eyebrow">Community</span><h3>Im Video erwähnen</h3><p>Du machst Content über Geld, Gehalt oder Alltag? Nutze den Visualizer in deinem Video – die Story-Exports sind dafür gemacht. Verlinkung reicht als Dank.</p><a class="btn btn-ghost" href="index.html">Visualizer öffnen</a></div>
-</section>
-<section class="card action soon">
-    <span class="eyebrow">Bald</span><h3>Spenden</h3>
-    <p>Viele haben gefragt, ob man dem Projekt etwas geben kann. Eine Spendenmöglichkeit kommt – aber erst, wenn klar ist, dass das Tool für euch wirklich Wert hat. Bis dahin: Feedback und Weitersagen helfen mehr als jeder Euro.</p>
-    <button class="btn btn-ghost" type="button" disabled aria-disabled="true">Spendenlink folgt</button>
-</section>
-<section class="card prose">
-    <h2>Wofür das Geld später gebraucht wird</h2>
-    <ul><li>Domain und Hosting (aktuell: wenige Euro im Monat)</li><li>Zeit für neue Funktionen, die ihr euch wünscht</li><li>Später eventuell eine optionale Synchronisation zwischen Geräten</li></ul>
-    <div class="callout">Versprechen: Die Kernfunktion – Budget eingeben, Balken sehen, exportieren – bleibt kostenlos und ohne Konto.</div>
-</section>
-</div>
-<div data-lang-only="en" hidden>
-<section class="page-hero"><span class="eyebrow hl">Independent</span><h1>Support the project</h1><p>The Budget Visualizer is free, ad-free and collects no data. To keep it that way I don’t need investment – I need people who use the tool, spread the word and say honestly what is missing.</p></section>
-<section class="action-grid">
-    <div class="card action"><span class="eyebrow">Most valuable</span><h3>Give feedback</h3><p>What works, what annoys, what is missing? Every message flows directly into the next version.</p><a class="btn btn-primary" href="feedback.html">Go to feedback</a></div>
-    <div class="card action"><span class="eyebrow">Reach</span><h3>Spread the word</h3><p>Send the link to someone thinking about rent, a car or saving right now. Or share your own bar as a story.</p><button class="btn btn-ghost" type="button" data-share-site>Share link</button></div>
-    <div class="card action"><span class="eyebrow">Community</span><h3>Mention it in a video</h3><p>You create content about money, salary or everyday life? Use the visualizer in your video – the story exports are made for it. A link is thanks enough.</p><a class="btn btn-ghost" href="index.html">Open the visualizer</a></div>
-</section>
-<section class="card action soon">
-    <span class="eyebrow">Soon</span><h3>Donations</h3>
-    <p>Many have asked whether they can give something to the project. A donation option is coming – but only once it’s clear the tool really has value for you. Until then: feedback and sharing help more than any euro.</p>
-    <button class="btn btn-ghost" type="button" disabled aria-disabled="true">Donation link coming</button>
-</section>
-<section class="card prose">
-    <h2>What the money will be used for later</h2>
-    <ul><li>Domain and hosting (currently: a few euros per month)</li><li>Time for new features you ask for</li><li>Later maybe an optional sync between devices</li></ul>
-    <div class="callout">Promise: the core – enter budget, see bar, export – stays free and without an account.</div>
-</section>
-</div>
-</main>
-
-<footer class="site-footer">
-    <div class="footer-inner">
-        <div class="footer-id">
-            <a class="footer-brand" href="index.html"><svg class="logo-mark" viewBox="0 0 64 64" width="30" height="30" aria-hidden="true" style="width:30px;height:30px;flex:0 0 auto;display:block"><rect x="4" y="4" width="56" height="56" fill="#f2ff00" stroke="currentColor" stroke-width="5"/><path d="M16 46 L28 34 L36 42 L50 22" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/></svg><span>Budget<span class="brand-thin"> Visualizer</span></span></a>
-            <p class="footer-note" data-i18n="footerNote">Kostenlose Beta – ohne Konto, ohne Werbung. Alles bleibt in deinem Browser.</p>
-        </div>
-        <nav class="footer-nav" aria-label="Footer">
-            <a class="footer-chip is-primary" href="index.html"><span data-i18n="navApp">Visualizer</span></a>
-            <a class="footer-chip" href="how-it-works.html"><span data-i18n="howItWorks">So funktioniert’s</span></a>
-            <a class="footer-chip" href="blog.html"><span data-i18n="blogLink">Blog</span></a>
-            <a class="footer-chip" href="feedback.html"><span data-i18n="feedbackLink">Feedback</span></a>
-            <a class="footer-chip" href="support.html"><span data-i18n="supportLink">Projekt unterstützen</span></a>
-        </nav>
-    </div>
-</footer>
-<script>window.PAGE_TR = {"de": {"pageTitle": "Projekt unterstützen"}, "en": {"pageTitle": "Support the project"}};</script>
-<script src="site.v3.js"></script>
-</body>
+    <script>
+      // Theme vor dem ersten Paint setzen – verhindert das weiße Aufblitzen im
+      // Dark Mode. "auto" wird hier schon aufgelöst, damit data-theme immer
+      // einen konkreten Wert hat (siehe @custom-variant dark in index.css).
+      try {
+        var s = JSON.parse(localStorage.getItem("myBudget") || "{}");
+        var pref = s.theme === "dark" || s.theme === "light" ? s.theme : "auto";
+        var isDark = pref === "dark" || (pref === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = isDark ? "dark" : "light";
+        if (s.lang === "de" || s.lang === "en") document.documentElement.lang = s.lang;
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/entries/support.tsx"></script>
+  </body>
 </html>

@@ -1,156 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
-    <title>Budget Visualizer – Sieh, wohin dein Geld geht</title>
-    <meta name="description" content="Kostenloses Tool: Einkommen und Ausgaben eintragen und dein Budget als einen Balken sehen. Ohne Konto, ohne Werbung, alles bleibt im Browser.">
-    <meta property="og:title" content="Budget Visualizer">
-    <meta property="og:description" content="Sieh in 60 Sekunden, wohin dein Geld geht.">
-    <meta property="og:type" content="website">
-    <link rel="icon" type="image/svg+xml" href="logo.svg">
-    <link rel="stylesheet" href="style.v3.css">
-    <script>
-        (function () { try { var s = JSON.parse(localStorage.getItem('myBudget') || '{}'); if (s.theme === 'dark' || s.theme === 'light') document.documentElement.dataset.theme = s.theme; } catch (e) {} })();
-    </script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Netto eintragen, Ausgaben hinzufügen, Budget sofort visualisieren. Kostenlos, ohne Anmeldung, direkt im Browser." />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href="./logo.svg" />
+    <title>Budget Visualizer – Dein Geld. Endlich auf einen Blick.</title>
     <style>
-        body { padding-bottom: 0; }
+      html { background: #fff }
+      html[data-theme="dark"] { background: #0f0f0f }
     </style>
-</head>
-<body>
-<header class="topbar">
-    <a class="brand" href="index.html"><svg class="logo-mark" viewBox="0 0 64 64" width="22" height="22" aria-hidden="true" style="width:22px;height:22px;flex:0 0 auto;display:block"><rect x="4" y="4" width="56" height="56" fill="#f2ff00" stroke="currentColor" stroke-width="5"/><path d="M16 46 L28 34 L36 42 L50 22" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/></svg><span class="brand-text">Budget<span class="brand-thin"> Visualizer</span></span></a>
-    <nav class="topbar-actions">
-        <a href="blog.html" class="btn btn-ghost btn-sm hide-xs" data-i18n="blogLink">Blog</a>
-        <a href="how-it-works.html" class="btn btn-ghost btn-sm hide-xs" data-i18n="howItWorks">So funktioniert’s</a>
-        <a href="app.html" class="btn btn-primary btn-sm" data-i18n="navApp">Visualizer</a>
-        <div class="seg-control" role="group" aria-label="Language">
-            <button class="seg-btn lang-btn" data-lang="de" type="button">DE</button>
-            <button class="seg-btn lang-btn" data-lang="en" type="button">EN</button>
-        </div>
-    </nav>
-</header>
-
-<main class="lp">
-<div data-lang-only="de">
-<section class="lp-section lp-hero">
-    <div>
-        <span class="lp-kicker">Kostenlos · Ohne Konto</span>
-        <h1>Sieh, wohin dein <em>Geld</em> geht.</h1>
-        <p class="lp-lead">Einkommen eintragen, Ausgaben dazu – und dein ganzes Budget wird zu einem einzigen Balken. In 60 Sekunden verstehst du, was dein Leben wirklich kostet und was am Monatsende übrig bleibt.</p>
-        <div class="lp-cta">
-            <a class="btn btn-primary" href="app.html">Budget visualisieren</a>
-            <a class="btn btn-ghost" href="how-it-works.html">So funktioniert’s</a>
-        </div>
-        <div class="lp-trust"><span>Keine Anmeldung</span><span>Keine Werbung</span><span>Daten bleiben im Browser</span></div>
-    </div>
-    <div class="lp-visual" aria-hidden="true">
-        <div class="lp-visual-head"><strong>4.275 €</strong><span>Monat · Rest +310 €</span></div>
-        <div class="lp-bar"><i style="flex:0 0 35%;background:#f5f5f5"></i><i style="flex:0 0 14%;background:#dcdcdc"></i><i style="flex:0 0 12.5%;background:#c2c2c2"></i><i style="flex:0 0 11.7%;background:#a8a8a8"></i><i style="flex:0 0 9.4%;background:#8e8e8e"></i><i style="flex:0 0 4.7%;background:#747474"></i><i style="flex:0 0 2.3%;background:#5a5a5a"></i><i style="flex:0 0 1.9%;background:#404040"></i><i style="flex:0 0 8.5%;background:#f2ff00"></i></div>
-        <div class="lp-bar-legend"><span>Wohnen 35 %</span><span>Freizeit 14 %</span><span>Mobilität</span><span>Essen</span><span>Rest 8,5 %</span></div>
-    </div>
-</section>
-<section class="lp-section">
-    <h2 class="lp-h2">Drei Schritte, ein Bild.</h2>
-    <p class="lp-sub">Kein Haushaltsbuch, keine Bankverbindung, kein tägliches Eintragen. Einmal ausfüllen reicht.</p>
-    <div class="lp-grid">
-        <article class="lp-card"><div class="lp-num">1</div><h3>Einkommen eintragen</h3><p>Netto pro Monat oder Jahresgehalt – in der Währung, die du nutzt.</p></article>
-        <article class="lp-card"><div class="lp-num">2</div><h3>Ausgaben hinzufügen</h3><p>Miete, Auto, Essen, Abos. Über die Schnellauswahl in Sekunden erledigt.</p></article>
-        <article class="lp-card"><div class="lp-num">3</div><h3>Balken lesen &amp; teilen</h3><p>Sparquote, größter Posten, Rest – als PDF, Story oder Link.</p></article>
-    </div>
-</section>
-<section class="lp-band">
-    <div class="lp-section">
-        <h2>„Lohnt sich das?“ – jetzt für dein eigenes Leben.</h2>
-        <p>Die Idee kommt von Videos, in denen Menschen offen über Gehalt und Fixkosten sprechen. Das Faszinierende ist nie die Zahl selbst, sondern der Vergleich: Wie viel bleibt bei denen übrig – und wie viel bei mir? Genau das beantwortet der Visualizer in einem Bild.</p>
-        <div class="lp-cta"><a class="btn btn-primary" href="app.html">Jetzt ausprobieren</a><a class="btn btn-ghost" href="blog.html" style="color:inherit;border-color:currentColor">Zum Blog</a></div>
-    </div>
-</section>
-<section class="lp-section">
-    <h2 class="lp-h2">Aus dem Blog</h2>
-    <p class="lp-sub">Kurze Texte zu Geld, Fixkosten und dem Projekt – ohne Finanz-Blabla.</p>
-    <div class="lp-grid">
-        <article class="lp-card"><h3>Warum ein Budget-Visualizer?</h3><p>Weil eine Tabelle kein Gefühl erzeugt – ein voller Balken schon.</p><a class="lp-more" href="blog.html#warum">Lesen →</a></article>
-        <article class="lp-card"><h3>Die 5 entscheidenden Fixkosten</h3><p>Nicht der Kaffee to go entscheidet, ob etwas übrig bleibt.</p><a class="lp-more" href="blog.html#fixkosten">Lesen →</a></article>
-        <article class="lp-card"><h3>Was ist eine gute Sparquote?</h3><p>Was der gelbe Rest rechts über deine Lage verrät.</p><a class="lp-more" href="blog.html#sparquote">Lesen →</a></article>
-    </div>
-</section>
-<section class="lp-section">
-    <h2 class="lp-h2">Offene Beta – sag mir, was fehlt.</h2>
-    <p class="lp-sub">Das Tool ist kostenlos und werbefrei. Was als Nächstes gebaut wird, entscheidet dein Feedback.</p>
-    <div class="lp-cta"><a class="btn btn-accent" href="feedback.html">Feedback geben</a><a class="btn btn-ghost" href="support.html">Projekt unterstützen</a></div>
-</section>
-</div>
-<div data-lang-only="en" hidden>
-<section class="lp-section lp-hero">
-    <div>
-        <span class="lp-kicker">Free · No account</span>
-        <h1>See where your <em>money</em> goes.</h1>
-        <p class="lp-lead">Enter your income, add your expenses – and your whole budget becomes a single bar. In 60 seconds you understand what your life really costs and what is left at the end of the month.</p>
-        <div class="lp-cta">
-            <a class="btn btn-primary" href="app.html">Visualize my budget</a>
-            <a class="btn btn-ghost" href="how-it-works.html">How it works</a>
-        </div>
-        <div class="lp-trust"><span>No sign-up</span><span>No ads</span><span>Data stays in your browser</span></div>
-    </div>
-    <div class="lp-visual" aria-hidden="true">
-        <div class="lp-visual-head"><strong>$4,275</strong><span>Month · Left +$310</span></div>
-        <div class="lp-bar"><i style="flex:0 0 35%;background:#f5f5f5"></i><i style="flex:0 0 14%;background:#dcdcdc"></i><i style="flex:0 0 12.5%;background:#c2c2c2"></i><i style="flex:0 0 11.7%;background:#a8a8a8"></i><i style="flex:0 0 9.4%;background:#8e8e8e"></i><i style="flex:0 0 4.7%;background:#747474"></i><i style="flex:0 0 2.3%;background:#5a5a5a"></i><i style="flex:0 0 1.9%;background:#404040"></i><i style="flex:0 0 8.5%;background:#f2ff00"></i></div>
-        <div class="lp-bar-legend"><span>Housing 35%</span><span>Leisure 14%</span><span>Mobility</span><span>Food</span><span>Left 8.5%</span></div>
-    </div>
-</section>
-<section class="lp-section">
-    <h2 class="lp-h2">Three steps, one picture.</h2>
-    <p class="lp-sub">No household book, no bank connection, no daily logging. Filling it in once is enough.</p>
-    <div class="lp-grid">
-        <article class="lp-card"><div class="lp-num">1</div><h3>Enter your income</h3><p>Net per month or annual salary – in the currency you use.</p></article>
-        <article class="lp-card"><div class="lp-num">2</div><h3>Add your expenses</h3><p>Rent, car, food, subscriptions. Done in seconds via quick add.</p></article>
-        <article class="lp-card"><div class="lp-num">3</div><h3>Read &amp; share the bar</h3><p>Savings rate, biggest item, remainder – as PDF, story or link.</p></article>
-    </div>
-</section>
-<section class="lp-band">
-    <div class="lp-section">
-        <h2>“Is it worth it?” – now for your own life.</h2>
-        <p>The idea comes from videos where people talk openly about salary and fixed costs. What fascinates is never the number itself, but the comparison: how much is left for them – and how much for me? That’s exactly what the visualizer answers in one picture.</p>
-        <div class="lp-cta"><a class="btn btn-primary" href="app.html">Try it now</a><a class="btn btn-ghost" href="blog.html" style="color:inherit;border-color:currentColor">Read the blog</a></div>
-    </div>
-</section>
-<section class="lp-section">
-    <h2 class="lp-h2">From the blog</h2>
-    <p class="lp-sub">Short reads about money, fixed costs and the project – no finance jargon.</p>
-    <div class="lp-grid">
-        <article class="lp-card"><h3>Why a budget visualizer?</h3><p>Because a spreadsheet creates no feeling – a full bar does.</p><a class="lp-more" href="blog.html#warum">Read →</a></article>
-        <article class="lp-card"><h3>The 5 decisive fixed costs</h3><p>It’s not the coffee to go that decides what is left.</p><a class="lp-more" href="blog.html#fixkosten">Read →</a></article>
-        <article class="lp-card"><h3>What is a good savings rate?</h3><p>What the yellow remainder tells you about your situation.</p><a class="lp-more" href="blog.html#sparquote">Read →</a></article>
-    </div>
-</section>
-<section class="lp-section">
-    <h2 class="lp-h2">Open beta – tell me what’s missing.</h2>
-    <p class="lp-sub">The tool is free and ad-free. What gets built next is decided by your feedback.</p>
-    <div class="lp-cta"><a class="btn btn-accent" href="feedback.html">Give feedback</a><a class="btn btn-ghost" href="support.html">Support the project</a></div>
-</section>
-</div>
-</main>
-
-<footer class="site-footer">
-    <div class="footer-inner">
-        <div class="footer-id">
-            <a class="footer-brand" href="index.html"><svg class="logo-mark" viewBox="0 0 64 64" width="30" height="30" aria-hidden="true" style="width:30px;height:30px;flex:0 0 auto;display:block"><rect x="4" y="4" width="56" height="56" fill="#f2ff00" stroke="currentColor" stroke-width="5"/><path d="M16 46 L28 34 L36 42 L50 22" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/></svg><span>Budget<span class="brand-thin"> Visualizer</span></span></a>
-            <p class="footer-note" data-i18n="footerNote">Kostenlose Beta – ohne Konto, ohne Werbung. Alles bleibt in deinem Browser.</p>
-        </div>
-        <nav class="footer-nav" aria-label="Footer">
-            <a class="footer-chip" href="index.html"><span data-i18n="navHome">Startseite</span></a>
-            <a class="footer-chip is-primary" href="app.html"><span data-i18n="navApp">Visualizer</span></a>
-            <a class="footer-chip" href="how-it-works.html"><span data-i18n="howItWorks">So funktioniert’s</span></a>
-            <a class="footer-chip" href="blog.html"><span data-i18n="blogLink">Blog</span></a>
-            <a class="footer-chip" href="feedback.html"><span data-i18n="feedbackLink">Feedback</span></a>
-            <a class="footer-chip" href="support.html"><span data-i18n="supportLink">Projekt unterstützen</span></a>
-        </nav>
-    </div>
-</footer>
-<script>window.PAGE_TR = {"de": {"pageTitle": "Startseite"}, "en": {"pageTitle": "Home"}};</script>
-<script src="site.v3.js"></script>
-</body>
+    <script>
+      // Theme vor dem ersten Paint setzen – verhindert das weiße Aufblitzen im
+      // Dark Mode. "auto" wird hier schon aufgelöst, damit data-theme immer
+      // einen konkreten Wert hat (siehe @custom-variant dark in index.css).
+      try {
+        var s = JSON.parse(localStorage.getItem("myBudget") || "{}");
+        var pref = s.theme === "dark" || s.theme === "light" ? s.theme : "auto";
+        var isDark = pref === "dark" || (pref === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = isDark ? "dark" : "light";
+        if (s.lang === "de" || s.lang === "en") document.documentElement.lang = s.lang;
+      } catch (e) {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/entries/home.tsx"></script>
+  </body>
 </html>

@@ -1,102 +1,198 @@
-# Budget Visualizer 4.0
+# Budget Visualizer 5.0
 
-Eine schnelle, offline-fähige Web-App, die dein monatliches Budget als skewed Balken visualisiert – jetzt als echtes Dashboard für Desktop **und** als App-Erlebnis auf dem Smartphone.
+Sieh, wohin dein Geld geht. Eine offline-fähige Web-App, die dein monatliches
+Budget als geneigten Balken zeigt – plus die Marketing-Seiten drumherum.
 
-Keine Anmeldung, kein Backend: Alle Daten bleiben in `localStorage` deines Browsers.
+Kein Konto, kein Backend, keine Datenbank. Alle Daten bleiben im `localStorage`
+deines Browsers.
 
+---
 
-## Version 4 – Startseite, neue Navigation, Export-Branding
+## Was in Version 5 neu ist
 
-- **Neue Startseite**: `index.html` ist jetzt die Landingpage (Hero, 3 Schritte, „Lohnt sich das?“-Abschnitt, Blog-Teaser, Beta-CTA).
-- **Die App liegt jetzt unter `app.html`** – beim Upload also alle Dateien ersetzen und `app.html` neu hinzufügen. Geteilte Links funktionieren weiter (sie nutzen den aktuellen Pfad).
-- **Footer-Navigation neu**: Chip-Buttons (Startseite · Visualizer · So funktioniert's · Blog · Feedback · Projekt unterstützen) statt unterstrichener Textlinks.
-- **Export-Branding**: PDF-Report und alle drei Story-Bilder tragen Logo + Wortmarke „BUDGET VISUALIZER“ – keine handschriftliche Signatur mehr.
-- **Cache-sichere Dateinamen**: `style.v3.css`, `app.v3.js`, `site.v3.js`. Dadurch lädt jeder Browser garantiert die neue Version. Nach dem Upload einmal hart neu laden (Cmd/Strg + Shift + R).
-- **Robuste Übersetzungen**: fehlt ein Sprach-Key, bleibt der sichtbare Text stehen (keine rohen Schlüssel wie `footerNote` mehr).
-- Logo-SVGs haben feste Größenangaben direkt im Markup – auch ohne CSS bleibt es 22–30 px klein (kein schwarzer Block mehr).
+- **Ein Projekt statt zwei.** Landingpage und Visualizer teilen sich Design,
+  Komponenten, Farben und Texte. Vorher waren es zwei getrennte Codebases mit
+  zwei Design-Sprachen.
+- **React + Vite + Tailwind 4** statt Vanilla-JS und handgeschriebenem CSS.
+  Die Rechen-, Canvas- und Export-Logik der Version 4 ist unverändert
+  übernommen – die Exporte sehen aus wie vorher.
+- **Multi-Page-Build.** Jede Seite ist eine echte `.html`-Datei. Auf GitHub
+  Pages funktionieren Deep-Links und geteilte Budget-Links dadurch ohne
+  404-Fallback.
+- **Dark Mode auf allen Seiten**, nicht nur in der App.
+- **Übergabe Startseite → Visualizer.** Was im Starter-Widget auf der
+  Startseite eingetippt wird, landet über den Budget-Link im Visualizer.
+- **jsPDF als npm-Abhängigkeit** statt CDN-Script: der PDF-Export funktioniert
+  offline und wird erst beim Klick geladen.
+- **Ehrliche Inhalte.** Die erfundenen Testimonials, Presse-Logos und
+  Nutzerzahlen des ersten Entwurfs sind durch nachprüfbare Produktaussagen und
+  die eigene Positionierung ersetzt. Die drei Preis-Tarife sind zu einer
+  „Kostenlos, für immer“-Sektion geworden, weil es die bezahlten Funktionen
+  nicht gibt.
 
+---
 
-## Was ist neu in 4.0
-
-- **Logo statt Unterschrift**: neues Markenzeichen (gelbes Quadrat + steigende Linie) in Topbar, Footer, Favicon (`logo.svg`) sowie in PDF-Report und Instagram-Stories. Die Schreibschrift *Caveat* ist entfernt.
-- **Blog** (`blog.html`): statische Artikel in DE/EN, Übersicht + Volltext mit Call-to-Action.
-- **Feedback** (`feedback.html`): E-Mail-Buttons mit vorausgefüllter Vorlage (Feedback / Fehler) und kopierbarer Vorlage - kein Formular, kein Backend.
-- **Projekt unterstützen** (`support.html`): Feedback, Teilen, Weiterempfehlen; Spenden-Platzhalter ohne Zahlungsanbieter.
-- **Footer-Navigation** auf allen Seiten; `site.v3.js` steuert Theme, Sprache und Kontaktadresse der statischen Seiten.
-- Kontaktadresse anpassen: `CONTACT_EMAIL` in `site.v3.js`.
-
-## Was ist neu in 2.0
-
-**Desktop**
-- Zweispaltiges Dashboard: Hero mit Nettoeinkommen + vier KPI-Kacheln (Ausgaben, Überschuss/Defizit, Sparquote, größter Posten)
-- Breiter Balken mit schwebenden Labels und automatischer Kollisionsvermeidung (auch bei langen deutschen Bezeichnungen)
-- Editor in zwei Spalten: Profil & Neue Ausgabe links, Ausgabenliste & Export rechts
-- Drag & Drop zum Sortieren, zusätzlich ↑/↓-Buttons und „Nach Betrag sortieren“
-
-**Mobil (< 900 px)**
-- Kompakter Balken plus Legende mit Fortschrittsbalken statt schwebender Labels
-- Fixe Bottom-Bar mit Überschuss/Defizit und „Ausgabe“-Button, der ein Bottom-Sheet zum Hinzufügen öffnet
-- Große Touch-Ziele, Segmente antippen für Details, Ausgaben antippen zum Bearbeiten
-- Native Share-Sheet für Link und Instagram-Stories (Web Share API)
-
-**Allgemein**
-- Dark Mode (folgt dem System, manuell umschaltbar)
-- Umschalter Monat / Jahr für alle Beträge
-- Inline-Bearbeitung jeder Ausgabe, Löschen mit „Rückgängig“
-- Teilen-Link: Das komplette Budget wird in der URL kodiert (`#b=…`) – auf jedem Gerät öffnen und weiterarbeiten
-- PDF-Report wird direkt auf einem Canvas gezeichnet (scharf, kein Screenshot mehr, `html2canvas` entfällt)
-- Drei Instagram-Story-Slides (1080 × 1920) als PNG
-- Tastaturbedienung, Fokus-Ringe, `aria`-Labels, `prefers-reduced-motion`
-- Zwei Sprachen (DE/EN) inkl. automatischer Übersetzung bekannter Kategorien
-
-## Dateien
-
-| Datei | Zweck |
-|---|---|
-| `index.html` | App-Struktur |
-| `style.v3.css` | Design-Tokens, Light/Dark, responsive Layout (Mobile-first, Breakpoints 640 / 900 / 1200 px) |
-| `app.v3.js` | Logik: State, Rendering, i18n, Exporte |
-| `how-it-works.html` | Kurzanleitung in DE/EN |
-| `blog.html` | Blog mit statischen Artikeln (DE/EN) |
-| `feedback.html` | Feedback-Seite (mailto-Vorlagen) |
-| `support.html` | Projekt unterstützen (ohne Zahlungsanbieter) |
-| `site.v3.js` | Gemeinsames Script der statischen Seiten (Theme, Sprache, Kontakt) |
-| `logo.svg` | Logo / Favicon |
-
-Externe Abhängigkeiten (per CDN, optional): Google Fonts *Inter* und `jsPDF` 2.5.1 für den PDF-Export. Ohne Netz läuft alles außer dem PDF-Download – Fallback-Schriften werden verwendet.
-
-## Lokal starten
-
-Einfach `index.html` im Browser öffnen. Für Web-Share und Clipboard-Funktionen ist ein `https://`- oder `localhost`-Kontext nötig, z. B.:
+## Loslegen
 
 ```bash
-python3 -m http.server 8080
-# → http://localhost:8080
+npm install
+npm run dev      # http://localhost:5173
 ```
 
-## Auf GitHub Pages veröffentlichen
+| Befehl | Wirkung |
+|---|---|
+| `npm run dev` | Entwicklungsserver mit Hot Reload |
+| `npm run build` | Typprüfung + Produktionsbuild nach `dist/` |
+| `npm run preview` | gebauten Stand lokal ansehen |
+| `npm run typecheck` | nur `tsc --noEmit` |
 
-1. Neues Repository anlegen und die vier Dateien (`index.html`, `style.v3.css`, `app.v3.js`, `how-it-works.html`) plus diese README hochladen.
-2. **Settings → Pages → Build and deployment**: Source „Deploy from a branch“, Branch `main`, Ordner `/ (root)`.
-3. Nach ca. einer Minute ist die App unter `https://<user>.github.io/<repo>/` erreichbar.
+Node 20 oder neuer.
 
-## Datenformat (localStorage `myBudget`)
+---
+
+## Seiten
+
+| Datei | Inhalt |
+|---|---|
+| `index.html` | Startseite mit Starter-Widget |
+| `app.html` | der Visualizer |
+| `how-it-works.html` | Kurzanleitung |
+| `blog.html` | Blog, Artikel über den Hash (`blog.html#sparquote`) |
+| `feedback.html` | Feedback per mailto-Vorlage |
+| `support.html` | Projekt unterstützen |
+| `legal.html` | Impressum & Datenschutz – **enthält Platzhalter** |
+
+---
+
+## Aufbau
+
+```
+src/
+├─ lib/          Rechnen, Speichern, Formatieren, Teilen-Link – ohne React
+│  ├─ types.ts   Budget, Expense, Segment
+│  ├─ storage.ts localStorage, Migration alter Datensätze, Kategorien
+│  ├─ budget.ts  Summen, Balkensegmente, Landingpage-Demo
+│  ├─ format.ts  Währung, Prozent, Monat/Jahr
+│  ├─ ramp.ts    Farbrampe (auch für die Canvas-Exporte)
+│  └─ share.ts   Budget ⇄ base64url für #b=…
+├─ export/       Canvas-Zeichnung, PDF-Report, Instagram-Stories – ohne React
+├─ i18n/         DE/EN-Wörterbücher + Provider (Sprache und Theme)
+├─ app/          Visualizer: State, Balken, Liste, Panels, Mobile
+├─ components/   Landingpage-Sektionen und die gemeinsame UI-Bibliothek
+├─ shared/       Kopf-/Fußzeile, Seitenrahmen, Umschalter
+├─ pages/        eine Komponente je Seite
+└─ entries/      ein Einstiegspunkt je HTML-Datei
+```
+
+`src/lib` und `src/export` kennen weder React noch i18n. Texte werden
+hineingereicht. Dadurch bleiben die Exporte testbar und der Port aus Version 4
+nachvollziehbar.
+
+---
+
+## Anpassen
+
+| Was | Wo |
+|---|---|
+| Kontaktadresse, GitHub-Link | `src/config.ts` |
+| Farben, Dark-Mode-Töne | `src/index.css` (`:root` und `[data-theme="dark"]`) |
+| Balkenfarben (auch Export) | `src/lib/ramp.ts` |
+| Alle Texte | `src/i18n/de.ts`, `en.ts`, `home.de.ts`, `home.en.ts` |
+| Blog-Artikel | `src/i18n/blog.de.ts`, `blog.en.ts` |
+| Währungen im Auswahlfeld | `CURRENCIES` in `src/app/Panels.tsx` |
+| Impressum, Datenschutz | `legal`-Abschnitt in `src/i18n/de.ts` / `en.ts` |
+
+`en.ts` ist gegen `typeof de` typisiert: fehlt ein Schlüssel oder ist einer
+zu viel, schlägt `npm run build` fehl. Das ist die Absicht.
+
+---
+
+## Veröffentlichen
+
+Der Build nutzt `base: "./"`, die Ausgabe ist also ortsunabhängig – sie läuft im
+Repo-Unterordner, auf einer eigenen Domain und lokal per Doppelklick.
+
+**Ins Repository bringen:**
+
+```bash
+git init
+git add .
+git commit -m "Budget Visualizer 5.0"
+git branch -M main
+git remote add origin git@github.com:<user>/<repo>.git
+git push -u origin main
+```
+
+`dist/` ist über `.gitignore` ausgeschlossen. Wer die gebaute Version im Repo
+haben will (etwa für Pages aus `/docs`), nimmt die Zeile dort heraus.
+
+**GitHub Pages, von Hand:** `npm run build`, dann den Inhalt von `dist/` in den
+Branch `gh-pages` oder in `/docs` auf `main` legen und unter
+*Settings → Pages* als Quelle auswählen.
+
+**GitHub Pages, automatisch:** Workflow anlegen, der bei jedem Push auf `main`
+`npm ci && npm run build` ausführt und `dist/` per
+`actions/deploy-pages` veröffentlicht.
+
+**Netlify / Vercel / Cloudflare Pages:** Build-Befehl `npm run build`,
+Ausgabeverzeichnis `dist`.
+
+---
+
+## Datenformat (`localStorage`, Schlüssel `myBudget`)
 
 ```json
 {
   "income": 4275,
   "annualSalary": 51300,
-  "currency": "USD",
-  "lang": "en",
+  "currency": "EUR",
+  "lang": "de",
   "job": "",
   "theme": "auto",
   "view": "month",
-  "expenses": [{ "id": "k3j9x1a", "name": "Housing", "amount": 1500 }]
+  "expenses": [{ "id": "k3j9x1a", "name": "Wohnen", "amount": 1500 }]
 }
 ```
 
-Bestehende Daten der Version 1 werden beim ersten Start automatisch migriert (IDs, Theme, Ansicht).
+Datensätze aus Version 1 bis 4 werden beim ersten Start automatisch übernommen
+(fehlende IDs, Theme, Ansicht). Geteilte Links aus Version 4 funktionieren
+weiter – die Kodierung ist unverändert.
+
+---
+
+## Datenschutz-Hinweise für Betreiber
+
+- Es werden keine Cookies gesetzt, kein Tracking eingebunden, keine Daten an
+  einen Server gesendet.
+- Die Schriftart **Inter** wird von Google Fonts geladen. Dabei geht die
+  IP-Adresse der Besucher an Google. Wer das vermeiden will, hostet die Schrift
+  selbst und entfernt die beiden `<link>`-Zeilen aus den HTML-Dateien – die
+  Seite fällt dann auf die Systemschrift zurück.
+- `legal.html` enthält Platzhalter. Vor der Veröffentlichung ausfüllen.
+
+---
+
+## Prüfen
+
+`scripts/verify.mjs` baut den Stand nicht, sondern prüft `dist/` in einem
+echten Chromium: Konsolenfehler und fehlende Assets auf allen sieben Seiten,
+Screenshots in Hell und Dunkel sowie in 390 px und 1440 px, dazu ein
+Funktionsdurchlauf (Anlegen, Bearbeiten, Löschen mit Rückgängig, Sortieren,
+Monat/Jahr, Theme, Sprache, Teilen-Link-Roundtrip, PDF, drei Story-PNGs,
+Übergabe von der Startseite).
+
+```bash
+npm run build
+npm i -D playwright && npx playwright install chromium
+npm run verify
+```
+
+Playwright ist absichtlich keine Projekt-Abhängigkeit – sein `postinstall`
+lädt Browser herunter, und dafür gibt es beim normalen Bauen keinen Grund.
+
+---
 
 ## Lizenz
 
-MIT – frei verwendbar. Das Branding in den Exporten (Logo + Wortmarke „BUDGET VISUALIZER“) steckt in `app.v3.js` (Funktion `sig()` / `logoMark()`).
+MIT, siehe `LICENSE`. Das Branding in den Exporten (Logo und Wortmarke
+„BUDGET VISUALIZER“) steckt in `src/export/canvas.ts`.
