@@ -1,17 +1,29 @@
-# Budget Visualizer 3.0
+# Budget Visualizer 4.0
 
 Eine schnelle, offline-fähige Web-App, die dein monatliches Budget als skewed Balken visualisiert – jetzt als echtes Dashboard für Desktop **und** als App-Erlebnis auf dem Smartphone.
 
 Keine Anmeldung, kein Backend: Alle Daten bleiben in `localStorage` deines Browsers.
 
-## Was ist neu in 3.0
+
+## Version 4 – Startseite, neue Navigation, Export-Branding
+
+- **Neue Startseite**: `index.html` ist jetzt die Landingpage (Hero, 3 Schritte, „Lohnt sich das?“-Abschnitt, Blog-Teaser, Beta-CTA).
+- **Die App liegt jetzt unter `app.html`** – beim Upload also alle Dateien ersetzen und `app.html` neu hinzufügen. Geteilte Links funktionieren weiter (sie nutzen den aktuellen Pfad).
+- **Footer-Navigation neu**: Chip-Buttons (Startseite · Visualizer · So funktioniert's · Blog · Feedback · Projekt unterstützen) statt unterstrichener Textlinks.
+- **Export-Branding**: PDF-Report und alle drei Story-Bilder tragen Logo + Wortmarke „BUDGET VISUALIZER“ – keine handschriftliche Signatur mehr.
+- **Cache-sichere Dateinamen**: `style.v3.css`, `app.v3.js`, `site.v3.js`. Dadurch lädt jeder Browser garantiert die neue Version. Nach dem Upload einmal hart neu laden (Cmd/Strg + Shift + R).
+- **Robuste Übersetzungen**: fehlt ein Sprach-Key, bleibt der sichtbare Text stehen (keine rohen Schlüssel wie `footerNote` mehr).
+- Logo-SVGs haben feste Größenangaben direkt im Markup – auch ohne CSS bleibt es 22–30 px klein (kein schwarzer Block mehr).
+
+
+## Was ist neu in 4.0
 
 - **Logo statt Unterschrift**: neues Markenzeichen (gelbes Quadrat + steigende Linie) in Topbar, Footer, Favicon (`logo.svg`) sowie in PDF-Report und Instagram-Stories. Die Schreibschrift *Caveat* ist entfernt.
 - **Blog** (`blog.html`): statische Artikel in DE/EN, Übersicht + Volltext mit Call-to-Action.
 - **Feedback** (`feedback.html`): E-Mail-Buttons mit vorausgefüllter Vorlage (Feedback / Fehler) und kopierbarer Vorlage - kein Formular, kein Backend.
 - **Projekt unterstützen** (`support.html`): Feedback, Teilen, Weiterempfehlen; Spenden-Platzhalter ohne Zahlungsanbieter.
-- **Footer-Navigation** auf allen Seiten; `site.js` steuert Theme, Sprache und Kontaktadresse der statischen Seiten.
-- Kontaktadresse anpassen: `CONTACT_EMAIL` in `site.js`.
+- **Footer-Navigation** auf allen Seiten; `site.v3.js` steuert Theme, Sprache und Kontaktadresse der statischen Seiten.
+- Kontaktadresse anpassen: `CONTACT_EMAIL` in `site.v3.js`.
 
 ## Was ist neu in 2.0
 
@@ -42,13 +54,13 @@ Keine Anmeldung, kein Backend: Alle Daten bleiben in `localStorage` deines Brows
 | Datei | Zweck |
 |---|---|
 | `index.html` | App-Struktur |
-| `style.css` | Design-Tokens, Light/Dark, responsive Layout (Mobile-first, Breakpoints 640 / 900 / 1200 px) |
-| `app.js` | Logik: State, Rendering, i18n, Exporte |
+| `style.v3.css` | Design-Tokens, Light/Dark, responsive Layout (Mobile-first, Breakpoints 640 / 900 / 1200 px) |
+| `app.v3.js` | Logik: State, Rendering, i18n, Exporte |
 | `how-it-works.html` | Kurzanleitung in DE/EN |
 | `blog.html` | Blog mit statischen Artikeln (DE/EN) |
 | `feedback.html` | Feedback-Seite (mailto-Vorlagen) |
 | `support.html` | Projekt unterstützen (ohne Zahlungsanbieter) |
-| `site.js` | Gemeinsames Script der statischen Seiten (Theme, Sprache, Kontakt) |
+| `site.v3.js` | Gemeinsames Script der statischen Seiten (Theme, Sprache, Kontakt) |
 | `logo.svg` | Logo / Favicon |
 
 Externe Abhängigkeiten (per CDN, optional): Google Fonts *Inter* und `jsPDF` 2.5.1 für den PDF-Export. Ohne Netz läuft alles außer dem PDF-Download – Fallback-Schriften werden verwendet.
@@ -64,7 +76,7 @@ python3 -m http.server 8080
 
 ## Auf GitHub Pages veröffentlichen
 
-1. Neues Repository anlegen und die vier Dateien (`index.html`, `style.css`, `app.js`, `how-it-works.html`) plus diese README hochladen.
+1. Neues Repository anlegen und die vier Dateien (`index.html`, `style.v3.css`, `app.v3.js`, `how-it-works.html`) plus diese README hochladen.
 2. **Settings → Pages → Build and deployment**: Source „Deploy from a branch“, Branch `main`, Ordner `/ (root)`.
 3. Nach ca. einer Minute ist die App unter `https://<user>.github.io/<repo>/` erreichbar.
 
@@ -87,4 +99,4 @@ Bestehende Daten der Version 1 werden beim ersten Start automatisch migriert (ID
 
 ## Lizenz
 
-MIT – frei verwendbar. Signatur „Markus S.“ in den Exporten kann in `app.js` (`sig()`) angepasst werden.
+MIT – frei verwendbar. Das Branding in den Exporten (Logo + Wortmarke „BUDGET VISUALIZER“) steckt in `app.v3.js` (Funktion `sig()` / `logoMark()`).
