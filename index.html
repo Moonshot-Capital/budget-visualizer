@@ -5,1145 +5,231 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#fafafa">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
+    <meta name="description" content="Budget Visualizer – see where your money goes. Interactive, offline, no sign-up.">
     <title>Budget Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Apply theme before paint to avoid flash
+        (function () {
+            try {
+                var s = JSON.parse(localStorage.getItem('myBudget') || '{}');
+                if (s.theme === 'dark' || s.theme === 'light') document.documentElement.dataset.theme = s.theme;
+            } catch (e) {}
+        })();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
-    <div class="header-links">
-        <a href="how-it-works.html" class="nav-link" data-i18n="howItWorks">How it works?</a>
-    </div>
 
-    <div class="lang-switch">
-        <button class="lang-btn active" data-lang="de">DE</button>
-        <button class="lang-btn" data-lang="en">EN</button>
-    </div>
-    
-    <section class="hero-section">
-        <div class="container">
-            <header class="header" id="heroHeader">
-                <h1 data-i18n="heroTitle">Monatlich</h1>
-                <span class="amount" id="totalDisplay">4.275€</span>
-            </header>
+<!-- ============ TOP BAR ============ -->
+<header class="topbar">
+    <a class="brand" href="index.html" aria-label="Budget Visualizer">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span class="brand-text">Budget<span class="brand-thin"> Visualizer</span></span>
+    </a>
+    <nav class="topbar-actions" aria-label="Main">
+        <a href="how-it-works.html" class="btn btn-ghost btn-sm hide-xs" data-i18n="howItWorks">How it works</a>
+        <div class="seg-control" role="group" aria-label="Language">
+            <button class="seg-btn lang-btn" data-lang="de" type="button">DE</button>
+            <button class="seg-btn lang-btn" data-lang="en" type="button">EN</button>
+        </div>
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">
+            <svg class="ico-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            <svg class="ico-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+    </nav>
+</header>
 
-            <div class="viz-wrapper" id="vizWrapper">
-                <div class="viz-container" id="vizContainer">
-                    <div class="labels-top" id="labels-top"></div>
-                    <div class="bar" id="bar"></div>
-                    <div class="labels-bottom" id="labels-bottom"></div>
+<main id="main">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" aria-labelledby="totalDisplay">
+        <div class="hero-inner">
+            <div class="hero-head">
+                <div class="hero-eyebrow">
+                    <span class="eyebrow-job" id="heroJob"></span>
+                    <div class="seg-control seg-control--inverse" role="group" aria-label="Period">
+                        <button class="seg-btn view-btn" data-view="month" type="button" data-i18n="viewMonth">Monthly</button>
+                        <button class="seg-btn view-btn" data-view="year" type="button" data-i18n="viewYear">Yearly</button>
+                    </div>
+                </div>
+                <h1 class="hero-amount" id="totalDisplay" aria-live="polite">$4,275</h1>
+                <p class="hero-sub" id="heroSub"></p>
+            </div>
+
+            <div class="kpis" role="list">
+                <div class="kpi" role="listitem">
+                    <span class="kpi-label" data-i18n="kpiExpenses">Expenses</span>
+                    <span class="kpi-value" id="kpiExpenses">–</span>
+                    <span class="kpi-note" id="kpiExpensesNote"></span>
+                </div>
+                <div class="kpi kpi-balance" role="listitem" id="kpiBalanceCard">
+                    <span class="kpi-label" id="kpiBalanceLabel">Surplus</span>
+                    <span class="kpi-value" id="kpiBalance">–</span>
+                    <span class="kpi-note" id="kpiBalanceNote"></span>
+                </div>
+                <div class="kpi" role="listitem">
+                    <span class="kpi-label" data-i18n="kpiRate">Savings rate</span>
+                    <span class="kpi-value" id="kpiRate">–</span>
+                    <span class="kpi-note" id="kpiRateNote"></span>
+                </div>
+                <div class="kpi" role="listitem">
+                    <span class="kpi-label" data-i18n="kpiTop">Largest item</span>
+                    <span class="kpi-value" id="kpiTop">–</span>
+                    <span class="kpi-note" id="kpiTopNote"></span>
                 </div>
             </div>
-            <!-- Mobile legend (hidden on desktop via CSS) -->
-            <div class="mobile-legend" id="mobileLegend" style="display:none;"></div>
+        </div>
+
+        <!-- The bar -->
+        <div class="viz" id="viz">
+            <div class="viz-inner" id="vizContainer">
+                <div class="labels labels-top" id="labels-top" aria-hidden="true"></div>
+                <div class="bar" id="bar" role="img"></div>
+                <div class="labels labels-bottom" id="labels-bottom" aria-hidden="true"></div>
+            </div>
+        </div>
+
+        <!-- Legend (mobile & tablet) -->
+        <div class="legend" id="legend"></div>
+    </section>
+
+    <!-- ============ EDITOR ============ -->
+    <section class="editor">
+        <div class="editor-col">
+
+            <!-- Profile -->
+            <article class="card" id="profileCard">
+                <header class="card-head">
+                    <h2 data-i18n="profileTitle">Your profile</h2>
+                </header>
+                <div class="form-grid form-grid-2">
+                    <div class="field">
+                        <label for="jobInput" data-i18n="jobLabel">Job (optional)</label>
+                        <input type="text" id="jobInput" autocomplete="organization-title" data-i18n-placeholder="jobPlaceholder" placeholder="e.g. Designer">
+                    </div>
+                    <div class="field">
+                        <label for="currencyInput" data-i18n="currencyLabel">Currency</label>
+                        <select id="currencyInput">
+                            <option value="EUR">€ Euro</option>
+                            <option value="USD">$ US Dollar</option>
+                            <option value="CHF">CHF Swiss Franc</option>
+                            <option value="GBP">£ Pound</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="incomeInput" data-i18n="incomeLabel">Monthly net income</label>
+                        <div class="input-affix">
+                            <input type="number" inputmode="decimal" min="0" id="incomeInput" value="4275">
+                            <span class="affix" data-affix="currency">€</span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="annualSalaryInput" data-i18n="salaryLabel">Annual net salary</label>
+                        <div class="input-affix">
+                            <input type="number" inputmode="decimal" min="0" id="annualSalaryInput" data-i18n-placeholder="salaryPlaceholder" placeholder="e.g. 51300">
+                            <span class="affix" data-affix="currency">€</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Add expense (bottom sheet on mobile) -->
+            <article class="card sheet" id="addCard" aria-labelledby="addTitle">
+                <header class="card-head">
+                    <h2 id="addTitle" data-i18n="newExpenseTitle">New expense</h2>
+                    <button class="icon-btn sheet-close" id="sheetClose" type="button" aria-label="Close">&times;</button>
+                </header>
+                <form id="addForm" class="form-grid form-grid-add" novalidate>
+                    <div class="field field-name">
+                        <label for="expenseName" data-i18n="expenseNameLabel">Description</label>
+                        <input type="text" id="expenseName" autocomplete="off" data-i18n-placeholder="expenseNamePlaceholder" placeholder="e.g. Rent" required>
+                    </div>
+                    <div class="field field-amount">
+                        <label for="expenseAmount" data-i18n="expenseAmountLabel">Amount</label>
+                        <div class="input-affix">
+                            <input type="number" inputmode="decimal" min="0" step="any" id="expenseAmount" placeholder="0" required>
+                            <span class="affix" data-affix="currency">€</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block field-submit" type="submit" data-i18n="addExpenseBtn">Add expense</button>
+                </form>
+                <div class="quick">
+                    <p class="card-hint" data-i18n="quickAddDesc">Quick add:</p>
+                    <div class="chips" id="quickAddContainer"></div>
+                </div>
+            </article>
+        </div>
+
+        <div class="editor-col">
+            <!-- Expenses list -->
+            <article class="card" id="listCard">
+                <header class="card-head card-head--row">
+                    <div>
+                        <h2 data-i18n="yourExpensesTitle">Your expenses</h2>
+                        <p class="card-hint" id="listMeta"></p>
+                    </div>
+                    <div class="card-tools">
+                        <button class="btn btn-ghost btn-sm" id="sortBtn" type="button" data-i18n="sortBtn">Sort by amount</button>
+                    </div>
+                </header>
+                <div class="expense-list" id="expenseList" role="list"></div>
+                <p class="card-hint card-hint--foot hide-touch" data-i18n="yourExpensesDesc">Click to edit · drag to reorder</p>
+            </article>
+
+            <!-- Export -->
+            <article class="card" id="exportCard">
+                <header class="card-head">
+                    <h2 data-i18n="exportTitle">Share &amp; export</h2>
+                    <p class="card-hint" data-i18n="exportDesc">Save a PDF report, Instagram stories, or copy a link that contains your budget.</p>
+                </header>
+                <div class="export-grid">
+                    <button class="btn btn-accent" id="btnDownloadPdf" type="button">
+                        <span class="btn-ico" aria-hidden="true">⤓</span><span data-i18n="btnPdf">PDF report</span>
+                    </button>
+                    <button class="btn btn-primary" id="btnDownloadIg" type="button">
+                        <span class="btn-ico" aria-hidden="true">▣</span><span data-i18n="btnIg">Instagram stories</span>
+                    </button>
+                    <button class="btn btn-ghost" id="btnShare" type="button">
+                        <span class="btn-ico" aria-hidden="true">⛓</span><span data-i18n="btnShare">Copy link</span>
+                    </button>
+                </div>
+            </article>
+
+            <div class="danger-row">
+                <button class="btn btn-danger btn-sm" id="btnReset" type="button" data-i18n="resetBtn">Reset all data</button>
+                <span class="card-hint" data-i18n="offlineNote">Everything is stored locally in your browser.</span>
+            </div>
         </div>
     </section>
 
-    <section class="editor-section">
-        <div class="input-card">
-            <h2 data-i18n="profileTitle">Dein Profil</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-                <div class="input-group">
-                    <label data-i18n="jobLabel">Beruf (Optional)</label>
-                    <input type="text" id="jobInput" data-i18n-placeholder="jobPlaceholder" placeholder="z.B. Designer">
-                </div>
-                <div class="input-group">
-                    <label data-i18n="currencyLabel">Währung</label>
-                    <select id="currencyInput">
-                        <option value="EUR">€ (Euro)</option>
-                        <option value="USD">$ (US Dollar)</option>
-                        <option value="CHF">CHF (Schweizer Franken)</option>
-                        <option value="GBP">£ (Pfund)</option>
-                    </select>
-                </div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                <div class="input-group">
-                    <label data-i18n="salaryLabel">Jahresgehalt Netto (Optional)</label>
-                    <input type="number" id="annualSalaryInput" data-i18n-placeholder="salaryPlaceholder" placeholder="z.B. 51300">
-                </div>
-                <div class="input-group">
-                    <label data-i18n="incomeLabel">Monatliches Nettoeinkommen</label>
-                    <input type="number" id="incomeInput" value="4275">
-                </div>
-            </div>
-        </div>
+    <footer class="footer">
+        <span class="signature">Markus S.</span>
+    </footer>
+</main>
 
-        <div class="input-card">
-            <h2 data-i18n="newExpenseTitle">Neue Ausgabe</h2>
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
-                <div class="input-group">
-                    <label data-i18n="expenseNameLabel">Bezeichnung</label>
-                    <input type="text" id="expenseName" data-i18n-placeholder="expenseNamePlaceholder" placeholder="z.B. Miete">
-                </div>
-                <div class="input-group">
-                    <label data-i18n="expenseAmountLabel">Betrag</label>
-                    <input type="number" id="expenseAmount" placeholder="0">
-                </div>
-            </div>
-            <button class="btn-add" id="addExpenseBtn" data-i18n="addExpenseBtn">Ausgabe Hinzufügen</button>
-        </div>
-
-        <div class="input-card">
-            <h2 data-i18n="yourExpensesTitle">Deine Ausgaben</h2>
-            <p data-i18n="yourExpensesDesc" style="font-weight: 600; opacity: 0.6; margin-top: -1rem; margin-bottom: 1rem;">Ziehen zum Sortieren • Doppelklick zum Bearbeiten</p>
-            <div class="expense-list" id="expenseList" style="display: flex; flex-direction: column; gap: 1rem;">
-                <!-- Dynamic list of expenses -->
-            </div>
-        </div>
-
-        <div class="input-card">
-            <h2 data-i18n="quickAddTitle">Häufige Ausgaben</h2>
-            <p data-i18n="quickAddDesc" style="font-weight: 600; opacity: 0.6; margin-top: -1rem; margin-bottom: 1rem;">Klicke auf einen Baustein, um ihn hinzuzufügen.</p>
-            <div class="quick-add-container" id="quickAddContainer">
-                <!-- Quick add chips will be here -->
-            </div>
-        </div>
-
-        <div class="input-card">
-            <h2 data-i18n="exportTitle">Exportieren</h2>
-            <p data-i18n="exportDesc" style="font-weight: 600; opacity: 0.6; margin-top: -1rem; margin-bottom: 1rem;">Speichere dein Budget als PDF oder als Bild für Instagram.</p>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <button class="btn-export" id="btnDownloadPdf" data-i18n="btnPdf">Als PDF speichern</button>
-                <button class="btn-export" id="btnDownloadIg" data-i18n="btnIg" style="background: var(--text-color); color: white;">Für Instagram speichern (Hochformat)</button>
-            </div>
-        </div>
-
-        <div class="input-card reset-card">
-            <h2 data-i18n="resetTitle">Zurücksetzen</h2>
-            <p data-i18n="resetDesc" style="font-weight: 600; opacity: 0.6; margin-top: -1rem; margin-bottom: 1rem;">Alle Eingaben auf den Ausgangszustand zurücksetzen.</p>
-            <button class="btn-reset" id="btnReset" data-i18n="resetBtn">Daten zurücksetzen</button>
-        </div>
-
-        <div class="signature">
-            Markus S.
-        </div>
-    </section>
-
-    <!-- Hidden container for Instagram Export -->
-    <div class="instagram-export-container" id="igExportContainer">
-        <!-- Top branding tag -->
-        <div class="ig-branding-tag">
-            <span class="ig-tag-dot"></span>
-            <span class="ig-tag-text">Budget Visualizer</span>
-        </div>
-        <!-- Center content -->
-        <div class="ig-center">
-            <div class="ig-job-title" id="igExportJob"></div>
-            <div class="ig-title" id="igExportHeroTitle">Monthly</div>
-            <div class="ig-amount" id="igExportTotal"></div>
-        </div>
-        <!-- The bar visualization -->
-        <div class="ig-viz-area" id="igExportViz">
-            <div class="ig-bar" id="igBar"></div>
-            <div class="ig-labels" id="igLabels"></div>
-        </div>
-        <!-- Bottom signature -->
-        <div class="ig-signature">Markus S.</div>
+<!-- ============ MOBILE ACTION BAR ============ -->
+<div class="mobile-bar" id="mobileBar">
+    <div class="mobile-bar-stat">
+        <span class="mobile-bar-label" id="mobileBarLabel">Surplus</span>
+        <span class="mobile-bar-value" id="mobileBarValue">+$310</span>
     </div>
-
-    <script>
-        // --- Translations ---
-        const TRANSLATIONS = {
-            de: {
-                heroTitle: "Monatlich",
-                profileTitle: "Dein Profil",
-                jobLabel: "Beruf (Optional)",
-                jobPlaceholder: "z.B. Designer",
-                currencyLabel: "Währung",
-                salaryLabel: "Jahresgehalt Netto (Optional)",
-                salaryPlaceholder: "z.B. 51300",
-                incomeLabel: "Monatliches Nettoeinkommen",
-                newExpenseTitle: "Neue Ausgabe",
-                expenseNameLabel: "Bezeichnung",
-                expenseNamePlaceholder: "z.B. Miete",
-                expenseAmountLabel: "Betrag",
-                addExpenseBtn: "Ausgabe Hinzufügen",
-                yourExpensesTitle: "Deine Ausgaben",
-                yourExpensesDesc: "Ziehen zum Sortieren • Doppelklick zum Bearbeiten",
-                quickAddTitle: "Häufige Ausgaben",
-                quickAddDesc: "Klicke auf einen Baustein, um ihn hinzuzufügen.",
-                exportTitle: "Exportieren",
-                exportDesc: "Speichere dein Budget als PDF oder als Bild für Instagram.",
-                btnPdf: "Als PDF speichern",
-                btnIg: "Für Instagram speichern (Hochformat)",
-                deficit: "Defizit",
-                surplus: "Überschuss",
-                expenseListPdf: "Ausgabenliste:",
-                howItWorks: "Wie funktioniert das?",
-                resetTitle: "Zurücksetzen",
-                resetDesc: "Alle Eingaben auf den Ausgangszustand zurücksetzen.",
-                resetBtn: "Daten zurücksetzen"
-            },
-            en: {
-                heroTitle: "Monthly",
-                profileTitle: "Your Profile",
-                jobLabel: "Job (Optional)",
-                jobPlaceholder: "e.g. Designer",
-                currencyLabel: "Currency",
-                salaryLabel: "Annual Net Salary (Optional)",
-                salaryPlaceholder: "e.g. 51300",
-                incomeLabel: "Monthly Net Income",
-                newExpenseTitle: "New Expense",
-                expenseNameLabel: "Description",
-                expenseNamePlaceholder: "e.g. Rent",
-                expenseAmountLabel: "Amount",
-                addExpenseBtn: "Add Expense",
-                yourExpensesTitle: "Your Expenses",
-                yourExpensesDesc: "Drag to sort • Double click to edit",
-                quickAddTitle: "Common Expenses",
-                quickAddDesc: "Click a chip to add it.",
-                exportTitle: "Export",
-                exportDesc: "Save your budget as a PDF or image for Instagram.",
-                btnPdf: "Save as PDF",
-                btnIg: "Save for Instagram (Portrait)",
-                deficit: "Deficit",
-                surplus: "Surplus",
-                expenseListPdf: "Expense List:",
-                howItWorks: "How it works?",
-                resetTitle: "Reset",
-                resetDesc: "Reset all inputs back to the default state.",
-                resetBtn: "Reset Data"
-            }
-        };
-
-        // --- Configuration ---
-        const COMMON_CATEGORIES = {
-            de: ['Essen', 'Miete', 'Internet', 'Handy', 'Versicherung', 'Freizeit', 'Auto', 'Gym', 'Abo', 'Sparen'],
-            en: ['Food', 'Rent', 'Internet', 'Phone', 'Insurance', 'Leisure', 'Car', 'Gym', 'Subs', 'Savings']
-        };
-
-        // Bidirectional expense category translations
-        // Each pair: [German name, English name]
-        const CATEGORY_PAIRS = [
-            ['Wohnen',                      'Housing'],
-            ['Freizeit & Lifestyle',        'Leisure & Lifestyle'],
-            ['Fortbildungen',               'Education'],
-            ['Studienkredit',               'Student Loan'],
-            ['Essen',                       'Food'],
-            ['Mobilität',                   'Mobility'],
-            ['Versicherungen & Sonstiges',  'Insurance & Misc'],
-            ['Kleidung & Körperpflege',     'Clothing'],
-            ['Miete',                       'Rent'],
-            ['Internet',                    'Internet'],
-            ['Handy',                       'Phone'],
-            ['Versicherung',                'Insurance'],
-            ['Freizeit',                    'Leisure'],
-            ['Auto',                        'Car'],
-            ['Gym',                         'Gym'],
-            ['Abo',                         'Subs'],
-            ['Sparen',                      'Savings'],
-        ];
-
-        function translateExpenses(targetLang) {
-            const fromIdx = targetLang === 'en' ? 0 : 1; // 0=DE, 1=EN
-            const toIdx   = targetLang === 'en' ? 1 : 0;
-            budget.expenses = budget.expenses.map(exp => {
-                const pair = CATEGORY_PAIRS.find(p => p[fromIdx].toLowerCase() === exp.name.toLowerCase());
-                return pair ? { ...exp, name: pair[toIdx] } : exp;
-            });
-        }
-
-        const DEFAULT_DATA = {
-            income: 4275,
-            currency: 'USD',
-            lang: 'en',
-            job: '',
-            annualSalary: '',
-            expenses: [
-                { name: 'Housing', amount: 1500 },
-                { name: 'Leisure & Lifestyle', amount: 600 },
-                { name: 'Education', amount: 535 },
-                { name: 'Student Loan', amount: 500 },
-                { name: 'Food', amount: 450 },
-                { name: 'Mobility', amount: 200 },
-                { name: 'Insurance & Misc', amount: 100 },
-                { name: 'Clothing', amount: 80 }
-            ]
-        };
-
-        // --- State Management ---
-        let budget = JSON.parse(localStorage.getItem('myBudget')) || DEFAULT_DATA;
-        if (!budget.currency) budget.currency = 'EUR';
-        if (!budget.lang) budget.lang = 'de';
-        if (budget.job === undefined) budget.job = '';
-        if (budget.annualSalary === undefined) budget.annualSalary = '';
-        
-        let editingIndex = null;
-        let draggedItemIndex = null;
-
-        function saveState() {
-            localStorage.setItem('myBudget', JSON.stringify(budget));
-        }
-
-        const formatCurrency = (amount) => {
-            const locale = budget.lang === 'en' ? 'en-US' : 'de-DE';
-            return new Intl.NumberFormat(locale, {
-                style: 'currency',
-                currency: budget.currency,
-                maximumFractionDigits: 0
-            }).format(amount);
-        };
-        
-        const getCurrencySymbol = () => {
-            return formatCurrency(0).replace(/[0-9.,\s]/g, '');
-        };
-
-        const t = (key) => TRANSLATIONS[budget.lang][key];
-
-        function updateLanguage() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                el.innerText = t(el.dataset.i18n);
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                el.placeholder = t(el.dataset.i18nPlaceholder);
-            });
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === budget.lang);
-            });
-            translateExpenses(budget.lang); // Auto-translate known category names
-            initQuickAdd();
-            render();
-        }
-
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                budget.lang = e.target.dataset.lang;
-                saveState();
-                updateLanguage();
-            });
-        });
-
-        // --- Quick Add Implementation ---
-        function initQuickAdd() {
-            const container = document.getElementById('quickAddContainer');
-            container.innerHTML = ''; 
-            const categories = COMMON_CATEGORIES[budget.lang] || COMMON_CATEGORIES['de'];
-            categories.forEach(cat => {
-                const chip = document.createElement('div');
-                chip.className = 'chip';
-                chip.innerText = cat;
-                chip.onclick = () => {
-                    budget.expenses.push({ name: cat, amount: 0 });
-                    render();
-                    setTimeout(() => {
-                        const items = document.querySelectorAll('.expense-item');
-                        const lastItem = items[items.length - 1];
-                        lastItem.scrollIntoView({ behavior: 'smooth' });
-                        startEditing(budget.expenses.length - 1);
-                    }, 100);
-                };
-                container.appendChild(chip);
-            });
-        }
-
-        // --- Inline Editing ---
-        function startEditing(index) {
-            editingIndex = index;
-            render();
-            const input = document.querySelector(`.expense-item[data-index="${index}"] .edit-amount`);
-            if (input) {
-                input.focus();
-                input.select();
-            }
-        }
-
-        function finishEditing(index, newName, newAmount) {
-            if (newName !== undefined) budget.expenses[index].name = newName;
-            if (newAmount !== undefined && !isNaN(newAmount)) budget.expenses[index].amount = newAmount;
-            editingIndex = null;
-            render();
-        }
-
-        // --- Drag and Drop Implementation ---
-        function handleDragStart(e, index) {
-            draggedItemIndex = index;
-            e.target.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        }
-
-        function handleDrop(e, targetIndex) {
-            e.preventDefault();
-            if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
-            
-            const items = [...budget.expenses];
-            const draggedItem = items.splice(draggedItemIndex, 1)[0];
-            items.splice(targetIndex, 0, draggedItem);
-            
-            budget.expenses = items;
-            draggedItemIndex = null;
-            render();
-        }
-
-        function handleDragEnd(e) {
-            e.target.classList.remove('dragging');
-        }
-
-        // --- Render Functions ---
-        function render() {
-            const bar = document.getElementById('bar');
-            const labelsTop = document.getElementById('labels-top');
-            const labelsBottom = document.getElementById('labels-bottom');
-            const expenseList = document.getElementById('expenseList');
-            const totalDisplay = document.getElementById('totalDisplay');
-
-            bar.innerHTML = '';
-            labelsTop.innerHTML = '';
-            labelsBottom.innerHTML = '';
-
-            // Guard: if income is missing or 0, show placeholder bar
-            if (!budget.income || budget.income <= 0) {
-                totalDisplay.textContent = formatCurrency(0);
-                bar.innerHTML = `<div style="width:100%;height:100%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;"><span style="font-size:1.4rem;font-weight:900;opacity:0.4;text-transform:uppercase;letter-spacing:2px;">← ${t('profileTitle')}</span></div>`;
-                return;
-            }
-            labelsTop.innerHTML = '';
-            labelsBottom.innerHTML = '';
-            expenseList.innerHTML = '';
-
-            totalDisplay.innerText = formatCurrency(budget.income);
-
-            const totalExpenses = budget.expenses.reduce((sum, e) => sum + e.amount, 0);
-            const balance = budget.income - totalExpenses;
-            const isDeficit = balance < 0;
-
-            // Render Editor List
-            budget.expenses.forEach((expense, index) => {
-                const item = document.createElement('div');
-                item.className = `expense-item ${editingIndex === index ? 'editing' : ''}`;
-                item.dataset.index = index;
-                item.draggable = editingIndex === null;
-                
-                item.ondragstart = (e) => handleDragStart(e, index);
-                item.ondragover = (e) => handleDragOver(e);
-                item.ondrop = (e) => handleDrop(e, index);
-                item.ondragend = (e) => handleDragEnd(e);
-
-                if (editingIndex === index) {
-                    const isMobileEdit = window.innerWidth <= 600;
-                    item.innerHTML = `
-                        <div style="display:flex; flex-direction:column; gap:0.8rem; width:100%;">
-                            <input class="edit-input edit-name" type="text" value="${expense.name}"
-                                placeholder="${budget.lang === 'en' ? 'Category name' : 'Kategorie'}"
-                                style="width:100%; font-size:${isMobileEdit ? '1.2rem' : '1rem'};">
-                            <div style="display:flex; gap:0.8rem; align-items:center;">
-                                <input class="edit-input edit-amount" type="number" inputmode="decimal"
-                                    value="${expense.amount}"
-                                    style="flex:1; text-align:right; font-size:${isMobileEdit ? '1.4rem' : '1rem'};">
-                                <span style="font-size:1.4rem; font-weight:900;">${getCurrencySymbol()}</span>
-                                <button class="btn-ok-edit" data-idx="${index}"
-                                    style="background:var(--text-color); color:white; border:none;
-                                    padding:${isMobileEdit ? '1rem 1.6rem' : '0.5rem 1rem'};
-                                    font-weight:900; font-size:${isMobileEdit ? '1.1rem' : '1rem'};
-                                    cursor:pointer; min-height:${isMobileEdit ? '52px' : '36px'}; white-space:nowrap;">
-                                    ✓ OK
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    const nameInput  = item.querySelector('.edit-name');
-                    const amountInput = item.querySelector('.edit-amount');
-                    const okBtn = item.querySelector('.btn-ok-edit');
-
-                    // OK button: always read current values and save – reliable on both desktop & mobile
-                    const doSave = () => {
-                        const newName   = nameInput.value.trim() || expense.name;
-                        const newAmount = parseFloat(amountInput.value);
-                        if (!isNaN(newAmount) && newAmount >= 0) {
-                            finishEditing(index, newName, newAmount);
-                        } else {
-                            finishEditing(index, newName, expense.amount); // keep old amount if invalid
-                        }
-                    };
-
-                    okBtn.addEventListener('click', (e) => { e.stopPropagation(); doSave(); });
-                    okBtn.addEventListener('touchend', (e) => { e.preventDefault(); doSave(); });
-
-                    // Enter key also saves
-                    [nameInput, amountInput].forEach(inp => {
-                        inp.addEventListener('keydown', (e) => {
-                            if (e.key === 'Enter') { e.preventDefault(); doSave(); }
-                            if (e.key === 'Escape') { editingIndex = null; render(); }
-                        });
-                    });
-
-                    // Auto-focus name on open
-                    setTimeout(() => nameInput.focus(), 50);
-
-                } else {
-                    const pct = budget.income > 0 ? ((expense.amount / budget.income) * 100).toFixed(1) : 0;
-                    item.innerHTML = `
-                        <div style="flex:1; display:flex; flex-direction:column; gap:0.2rem;">
-                            <span style="font-weight:900; font-size:1.1rem;">${expense.name}</span>
-                            <span style="font-weight:700; font-size:1.5rem; letter-spacing:-0.5px;">${formatCurrency(expense.amount)} <span style="font-weight:500; font-size:0.85rem; opacity:0.45;">(${pct}%)</span></span>
-                        </div>
-                        <button class="btn-remove" style="background:transparent; border:none; color:var(--accent-red); font-weight:900; cursor:pointer; font-size: 2rem;" onclick="event.stopPropagation(); removeExpense(${index})">✕</button>
-                    `;
-                    item.ondblclick = () => startEditing(index);
-                    item.addEventListener('click', (e) => { if (!e.target.closest('.btn-remove')) startEditing(index); });
-                }
-                expenseList.appendChild(item);
-            });
-
-            // Render Segments
-            // Each segment gets a distinct gray shade so they're all visible
-            const segmentShades = [
-                '#c8c8c8', '#b0b0b0', '#d8d8d8', '#989898',
-                '#c0c0c0', '#a8a8a8', '#e0e0e0', '#909090'
-            ];
-
-            budget.expenses.forEach((expense, index) => {
-                const width = (expense.amount / budget.income) * 100;
-                if (width <= 0) return;
-
-                const seg = document.createElement('div');
-                seg.className = 'segment';
-                seg.style.width = `${width}%`;
-                seg.style.background = segmentShades[index % segmentShades.length];
-                seg.style.cursor = 'pointer';
-                seg.dataset.index = index;
-                bar.appendChild(seg);
-
-                // Tap / click → show tooltip
-                const showTooltip = (e) => {
-                    e.stopPropagation();
-                    // Remove existing tooltips + backdrops
-                    document.querySelectorAll('.seg-tooltip, .seg-tooltip-backdrop').forEach(el => el.remove());
-
-                    const isMobile = window.innerWidth <= 600;
-                    const pct = (expense.amount / budget.income * 100).toFixed(1);
-                    const tip = document.createElement('div');
-                    tip.className = 'seg-tooltip';
-                    if (isMobile) tip.classList.add('seg-tooltip--mobile');
-                    tip.innerHTML = `
-                        <div class="seg-tooltip-name">${expense.name}</div>
-                        <div class="seg-tooltip-amount">${formatCurrency(expense.amount)}</div>
-                        <div class="seg-tooltip-pct">${pct}% ${budget.lang === 'en' ? 'of income' : 'des Einkommens'}</div>
-                        <button class="seg-tooltip-close" onclick="document.querySelectorAll('.seg-tooltip,.seg-tooltip-backdrop').forEach(el=>el.remove())">✕</button>
-                    `;
-
-                    if (isMobile) {
-                        // On mobile: fixed overlay at bottom of bar, full-width feels native
-                        const segRect = seg.getBoundingClientRect();
-                        document.body.appendChild(tip);
-                        tip.style.position = 'fixed';
-                        tip.style.left = '50%';
-                        tip.style.transform = 'translateX(-50%)';
-                        tip.style.top = Math.min(segRect.bottom + 12, window.innerHeight - 160) + 'px';
-                        tip.style.width = 'calc(100vw - 3rem)';
-                        tip.style.maxWidth = '420px';
-                        // Tap-backdrop to dismiss
-                        const bd = document.createElement('div');
-                        bd.className = 'seg-tooltip-backdrop';
-                        bd.onclick = () => document.querySelectorAll('.seg-tooltip,.seg-tooltip-backdrop').forEach(el => el.remove());
-                        document.body.appendChild(bd);
-                    } else {
-                        // Desktop: position relative to vizWrapper
-                        const vizWrapper = document.getElementById('vizWrapper');
-                        const vizRect = vizWrapper.getBoundingClientRect();
-                        const segRect = seg.getBoundingClientRect();
-                        vizWrapper.style.position = 'relative';
-                        vizWrapper.appendChild(tip);
-                        const tipW = 280;
-                        // Center on segment, clamp within vizWrapper width
-                        let left = (segRect.left + segRect.width / 2) - vizRect.left - tipW / 2;
-                        left = Math.max(8, Math.min(left, vizRect.width - tipW - 8));
-                        tip.style.left = left + 'px';
-                        tip.style.top = (segRect.bottom - vizRect.top + 14) + 'px';
-                        tip.style.width = tipW + 'px';
-                    }
-
-                    // Auto-dismiss after 4s
-                    setTimeout(() => document.querySelectorAll('.seg-tooltip,.seg-tooltip-backdrop').forEach(el => el.remove()), 4000);
-                };
-                seg.addEventListener('click', showTooltip);
-                seg.addEventListener('touchend', (e) => { e.preventDefault(); showTooltip(e); }, { passive: false });
-
-
-                const label = document.createElement('div');
-                label.className = 'label';
-                label.dataset.segment = index;
-                label.innerHTML = `
-                    <span class="name" style="font-size: 1.2rem;">${expense.name}</span>
-                    <span class="value" style="font-size: 2rem;">-${formatCurrency(expense.amount)}</span>
-                    <div class="line"></div>
-                `;
-                
-                if (index % 2 === 0) {
-                    labelsBottom.appendChild(label);
-                } else {
-                    labelsTop.appendChild(label);
-                }
-
-                seg.addEventListener('mouseenter', () => label.classList.add('active'));
-                seg.addEventListener('mouseleave', () => label.classList.remove('active'));
-            });
-
-            // Render Balance Segment
-            const balanceWidth = (Math.abs(balance) / budget.income) * 100;
-            const balanceSeg = document.createElement('div');
-            balanceSeg.className = `segment ${isDeficit ? 'deficit' : 'surplus'}`;
-            balanceSeg.style.width = `${balanceWidth}%`;
-            bar.appendChild(balanceSeg);
-
-            const balanceLabel = document.createElement('div');
-            balanceLabel.className = `label ${isDeficit ? 'deficit' : ''}`;
-            balanceLabel.dataset.isBalance = true;
-            balanceLabel.innerHTML = `
-                <span class="name" style="font-size: 1.2rem;">${isDeficit ? t('deficit') : t('surplus')}</span>
-                <span class="value" style="font-size: 2rem;">${formatCurrency(balance)}</span>
-                <div class="line"></div>
-            `;
-            labelsBottom.appendChild(balanceLabel);
-
-            saveState();
-            setTimeout(positionLabels, 50);
-            renderMobileLegend();
-        }
-
-        function renderMobileLegend() {
-            const legend = document.getElementById('mobileLegend');
-            if (!legend) return;
-            legend.innerHTML = '';
-
-            const totalExpenses = budget.expenses.reduce((s, e) => s + e.amount, 0);
-            const balance = budget.income - totalExpenses;
-            const isDeficit = balance < 0;
-
-            // Segment colors (same order as bar)
-            const segColors = ['#e8e8e8','#d8d8d8','#cacaca','#bcbcbc','#aeaeae','#a0a0a0','#929292','#848484'];
-
-            const allItems = [
-                ...budget.expenses.map((e, i) => ({ name: e.name, amount: e.amount, color: segColors[i % segColors.length], isBalance: false })),
-                { name: isDeficit ? t('deficit') : t('surplus'), amount: Math.abs(balance), color: isDeficit ? '#ff4444' : 'var(--accent-yellow)', isBalance: true, isDeficit }
-            ];
-
-            allItems.forEach(item => {
-                if (item.amount <= 0) return;
-                const row = document.createElement('div');
-                row.className = 'mobile-legend-item';
-                row.innerHTML = `
-                    <span class="mobile-legend-dot" style="background:${item.color};"></span>
-                    <span class="mobile-legend-name">${item.name}</span>
-                    <span class="mobile-legend-value ${item.isBalance && !item.isDeficit ? 'surplus' : ''} ${item.isDeficit ? 'deficit' : ''}">${item.isBalance && !item.isDeficit ? '+' : '-'}${formatCurrency(item.amount)}</span>
-                `;
-                legend.appendChild(row);
-            });
-        }
-
-        function positionLabels() {
-            const segments = document.querySelectorAll('.segment');
-            const labels = Array.from(document.querySelectorAll('.label'));
-            const bar = document.getElementById('bar');
-            const header = document.getElementById('heroHeader');
-            const vizContainer = document.getElementById('vizContainer');
-            if (!bar || !header) return;
-
-            const barRect = bar.getBoundingClientRect();
-            const headerRect = header.getBoundingClientRect();
-            
-            labels.forEach(label => {
-                let segment;
-                if (label.dataset.isBalance) {
-                    segment = segments[segments.length - 1];
-                } else {
-                    segment = segments[label.dataset.segment];
-                }
-                
-                if (!segment) return;
-                const segmentRect = segment.getBoundingClientRect();
-                const centerX = (segmentRect.left + segmentRect.width / 2) - barRect.left;
-                label.style.left = `${centerX}px`;
-                label.style.transform = 'translateX(-50%)';
-            });
-
-            const isMobile = window.innerWidth <= 768;
-            const THRESHOLD = isMobile ? 100 : 160; 
-            const OFFSET_STEP = isMobile ? 55 : 75; 
-            const BASE_OFFSET = isMobile ? 40 : 60;
-            let maxTopHeight = 0;
-            let maxBottomHeight = 0;
-
-            const processSide = (sideLabels, side) => {
-                sideLabels.sort((a, b) => {
-                    const rectA = a.getBoundingClientRect();
-                    const rectB = b.getBoundingClientRect();
-                    return rectA.left - rectB.left;
-                });
-
-                let lastLevels = []; 
-
-                sideLabels.forEach(label => {
-                    const rect = label.getBoundingClientRect();
-                    let level = 0;
-                    while (lastLevels[level] !== undefined && rect.left < lastLevels[level] + THRESHOLD) {
-                        level++;
-                    }
-                    const h = BASE_OFFSET + level * OFFSET_STEP;
-                    if (side === 'top') {
-                        label.style.bottom = `${h}px`;
-                        maxTopHeight = Math.max(maxTopHeight, h + rect.height);
-                    } else {
-                        label.style.top = `${h}px`;
-                        maxBottomHeight = Math.max(maxBottomHeight, h + rect.height);
-                    }
-                    lastLevels[level] = rect.left;
-                    const line = label.querySelector('.line');
-                    if (line) {
-                        line.style.height = `${h + 15}px`;
-                        if (side === 'top') {
-                            line.style.bottom = `-${h + 30}px`;
-                        } else {
-                            line.style.top = `-${h + 30}px`;
-                        }
-                    }
-                });
-            };
-
-            processSide(Array.from(document.getElementById('labels-top').children), 'top');
-            processSide(Array.from(document.getElementById('labels-bottom').children), 'bottom');
-
-            // --- Dynamic Safety Margin ---
-            const minSafeMarginTop = maxTopHeight + 30; 
-            vizContainer.style.marginTop = `${Math.max(160, minSafeMarginTop)}px`;
-            
-            const minSafeMarginBottom = maxBottomHeight + 30;
-            vizContainer.style.marginBottom = `${Math.max(160, minSafeMarginBottom)}px`;
-        }
-
-        // --- Interaction Logic ---
-        function removeExpense(index) {
-            budget.expenses.splice(index, 1);
-            render();
-        }
-
-        document.getElementById('addExpenseBtn').addEventListener('click', () => {
-            const name = document.getElementById('expenseName').value;
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            if (name && !isNaN(amount)) {
-                budget.expenses.push({ name, amount });
-                render();
-                document.getElementById('expenseName').value = '';
-                document.getElementById('expenseAmount').value = '';
-            }
-        });
-
-        document.getElementById('incomeInput').addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if (!isNaN(val)) { 
-                budget.income = val; 
-                budget.annualSalary = val * 12;
-                document.getElementById('annualSalaryInput').value = budget.annualSalary;
-                render(); 
-            }
-            saveState();
-        });
-
-        document.getElementById('jobInput').addEventListener('input', (e) => {
-            budget.job = e.target.value;
-            saveState();
-        });
-
-        document.getElementById('annualSalaryInput').addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if (!isNaN(val)) { 
-                budget.annualSalary = val;
-                budget.income = Math.round(val / 12);
-                document.getElementById('incomeInput').value = budget.income;
-                render();
-            } else {
-                budget.annualSalary = '';
-            }
-            saveState();
-        });
-
-        document.getElementById('currencyInput').addEventListener('change', (e) => {
-            budget.currency = e.target.value;
-            render();
-        });
-
-        // --- Export Logic ---
-        document.getElementById('btnDownloadPdf').addEventListener('click', async () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            const elementToPrint = document.querySelector('.container');
-            
-            // Render hero visualization only - no expense list
-            const canvas = await html2canvas(elementToPrint, { 
-                scale: 2,
-                useCORS: true,
-                scrollX: 0,
-                scrollY: -window.scrollY
-            });
-            const imgData = canvas.toDataURL('image/jpeg', 0.9);
-            const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            doc.save('budget.pdf');
-        });
-
-        document.getElementById('btnDownloadIg').addEventListener('click', async () => {
-            // Wait for fonts to be ready (Inter, Caveat)
-            await document.fonts.ready;
-
-            const W = 1080, H = 1920, PAD = 90;
-            const YELLOW = '#f2ff00', BLACK = '#000000', WHITE = '#ffffff', RED = '#ff3d00';
-            const segColors = ['#c8c8c8','#b0b0b0','#d8d8d8','#989898','#c0c0c0','#a8a8a8','#e0e0e0','#909090'];
-
-            const totalExpenses = budget.expenses.reduce((s, e) => s + e.amount, 0);
-            const balance = budget.income - totalExpenses;
-            const isDeficit = balance < 0;
-            const balLabel = isDeficit ? t('deficit') : t('surplus');
-            const fmt = (v) => formatCurrency(Math.abs(v));
-
-            // --- Helpers ---
-            function setupCanvas() {
-                const c = document.createElement('canvas');
-                c.width = W; c.height = H;
-                return c;
-            }
-
-            function drawBrandTag(ctx, x, y, bg, textColor) {
-                const text = 'BUDGET VISUALIZER';
-                ctx.save();
-                ctx.font = '900 30px Inter, Arial Black, sans-serif';
-                const tw = ctx.measureText(text).width;
-                const tagW = tw + 72, tagH = 52;
-                ctx.fillStyle = bg;
-                ctx.fillRect(x, y, tagW, tagH);
-                ctx.strokeStyle = textColor;
-                ctx.lineWidth = 3;
-                ctx.strokeRect(x, y, tagW, tagH);
-                // dot
-                ctx.fillStyle = YELLOW;
-                ctx.beginPath(); ctx.arc(x + 22, y + tagH / 2, 8, 0, Math.PI * 2); ctx.fill();
-                ctx.strokeStyle = textColor; ctx.lineWidth = 2; ctx.stroke();
-                // text
-                ctx.fillStyle = textColor;
-                ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-                ctx.fillText(text, x + 40, y + tagH / 2);
-                ctx.restore();
-                return tagH;
-            }
-
-            function drawSignature(ctx, x, y, color) {
-                ctx.save();
-                ctx.fillStyle = color; ctx.globalAlpha = 0.8;
-                ctx.font = 'italic 700 80px Georgia, serif';
-                ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
-                ctx.translate(x, y); ctx.rotate(-0.04);
-                ctx.fillText('Markus S.', 0, 0);
-                ctx.restore();
-            }
-
-            // Draw skewed parallelogram bar
-            function drawBar(ctx, x, y, barW, barH, segs) {
-                const SKEW = Math.tan(15 * Math.PI / 180); // tan(15°)
-                const skewOffset = barH * SKEW;
-                let curX = x;
-                segs.forEach(seg => {
-                    const sw = (seg.pct / 100) * barW;
-                    if (sw <= 0.5) return;
-                    ctx.beginPath();
-                    ctx.moveTo(curX,              y + barH);
-                    ctx.lineTo(curX + sw,         y + barH);
-                    ctx.lineTo(curX + sw + skewOffset, y);
-                    ctx.lineTo(curX + skewOffset, y);
-                    ctx.closePath();
-                    ctx.fillStyle = seg.color;
-                    ctx.fill();
-                    curX += sw;
-                });
-            }
-
-            const barSegs = [
-                ...budget.expenses.map((e, i) => ({ pct: (e.amount / budget.income) * 100, color: segColors[i % segColors.length], name: e.name, amount: e.amount })),
-                { pct: (Math.abs(balance) / budget.income) * 100, color: isDeficit ? RED : YELLOW, name: balLabel, amount: Math.abs(balance), isBal: true }
-            ].filter(s => s.pct > 0);
-
-            // ==================== SLIDE 1: COVER ====================
-            function makeSlide1() {
-                const canvas = setupCanvas();
-                const ctx = canvas.getContext('2d');
-
-                // BG
-                ctx.fillStyle = BLACK; ctx.fillRect(0, 0, W, H);
-                // Yellow top stripe
-                ctx.fillStyle = YELLOW; ctx.fillRect(0, 0, W, 10);
-
-                // Brand tag
-                drawBrandTag(ctx, PAD, 70, BLACK, WHITE);
-
-                // Job title
-                let headerY = 220;
-                if (budget.job) {
-                    ctx.fillStyle = WHITE; ctx.globalAlpha = 0.45;
-                    ctx.font = '700 48px Inter, Arial, sans-serif';
-                    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                    ctx.fillText(budget.job.toUpperCase(), PAD, headerY);
-                    ctx.globalAlpha = 1;
-                    headerY += 80;
-                }
-
-                // Monthly label
-                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.5;
-                ctx.font = '900 88px Inter, Arial Black, sans-serif';
-                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                ctx.fillText(t('heroTitle').toUpperCase(), PAD, headerY);
-                ctx.globalAlpha = 1;
-
-                // Income – BIG
-                ctx.fillStyle = WHITE;
-                ctx.font = '900 160px Inter, Arial Black, sans-serif';
-                ctx.fillText(formatCurrency(budget.income), PAD, headerY + 100);
-
-                // Divider
-                const divY = headerY + 310;
-                ctx.strokeStyle = WHITE; ctx.globalAlpha = 0.15; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(PAD, divY); ctx.lineTo(W - PAD, divY); ctx.stroke();
-                ctx.globalAlpha = 1;
-
-                // Surplus / Deficit block
-                const s1Y = divY + 60;
-                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.45;
-                ctx.font = '700 34px Inter, Arial, sans-serif';
-                ctx.fillText(balLabel.toUpperCase(), PAD, s1Y);
-                ctx.globalAlpha = 1;
-                ctx.fillStyle = isDeficit ? RED : YELLOW;
-                ctx.font = '900 100px Inter, Arial Black, sans-serif';
-                ctx.fillText(`${isDeficit ? '−' : '+'}${fmt(balance)}`, PAD, s1Y + 44);
-
-                // Total expenses block
-                const s2Y = s1Y + 180;
-                const expLabel = budget.lang === 'en' ? 'TOTAL EXPENSES' : 'GESAMTAUSGABEN';
-                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.45;
-                ctx.font = '700 34px Inter, Arial, sans-serif';
-                ctx.fillText(expLabel, PAD, s2Y);
-                ctx.globalAlpha = 1;
-                ctx.fillStyle = WHITE;
-                ctx.font = '900 80px Inter, Arial Black, sans-serif';
-                ctx.fillText(formatCurrency(totalExpenses), PAD, s2Y + 44);
-
-                // Mini bar near bottom
-                const miniBarY = H - 420;
-                drawBar(ctx, PAD, miniBarY, W - PAD * 2, 70, barSegs);
-
-                // Expense count note
-                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.35;
-                ctx.font = '600 30px Inter, Arial, sans-serif';
-                ctx.fillText(`${budget.expenses.length} ${budget.lang === 'en' ? 'expense categories' : 'Ausgabe-Kategorien'}`, PAD, miniBarY + 100);
-                ctx.globalAlpha = 1;
-
-                drawSignature(ctx, W - PAD, H - 90, WHITE);
-                return canvas;
-            }
-
-            // ==================== SLIDE 2: BAR BREAKDOWN ====================
-            function makeSlide2() {
-                const canvas = setupCanvas();
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = WHITE; ctx.fillRect(0, 0, W, H);
-                ctx.fillStyle = BLACK; ctx.fillRect(0, 0, W, 10);
-
-                drawBrandTag(ctx, PAD, 70, WHITE, BLACK);
-
-                // Title
-                ctx.fillStyle = BLACK; ctx.globalAlpha = 0.45;
-                ctx.font = '700 38px Inter, Arial, sans-serif';
-                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                ctx.fillText(budget.lang === 'en' ? 'BUDGET BREAKDOWN' : 'BUDGET ÜBERSICHT', PAD, 190);
-                ctx.globalAlpha = 1;
-
-                // Income
-                ctx.fillStyle = BLACK;
-                ctx.font = '900 110px Inter, Arial Black, sans-serif';
-                ctx.fillText(formatCurrency(budget.income), PAD, 240);
-
-                // BIG bar
-                const barY = 420, barW = W - PAD * 2, barH = 150;
-                drawBar(ctx, PAD, barY, barW, barH, barSegs);
-
-                // List of segments below bar
-                const listY = barY + barH + 80;
-                const rowH = Math.min(90, (H - listY - 200) / barSegs.length);
-
-                barSegs.forEach((seg, i) => {
-                    const y = listY + i * rowH;
-                    if (y > H - 220) return;
-
-                    // Color dot
-                    ctx.fillStyle = seg.color;
-                    ctx.beginPath(); ctx.arc(PAD + 12, y + 16, 12, 0, Math.PI * 2); ctx.fill();
-                    if (seg.color === YELLOW) {
-                        ctx.strokeStyle = BLACK; ctx.lineWidth = 2; ctx.stroke();
-                    }
-
-                    // Name
-                    ctx.fillStyle = BLACK; ctx.globalAlpha = 0.5;
-                    ctx.font = '700 30px Inter, Arial, sans-serif';
-                    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                    ctx.fillText(seg.name.toUpperCase(), PAD + 36, y);
-                    ctx.globalAlpha = 1;
-
-                    // Amount
-                    ctx.font = '900 36px Inter, Arial Black, sans-serif';
-                    ctx.fillStyle = seg.isBal ? (isDeficit ? RED : '#5a7a00') : BLACK;
-                    ctx.textAlign = 'right';
-                    ctx.fillText(`${seg.isBal && !isDeficit ? '+' : '−'}${formatCurrency(seg.amount)}`, W - PAD, y);
-
-                    // Pct bar track
-                    ctx.fillStyle = BLACK; ctx.globalAlpha = 0.07;
-                    ctx.fillRect(PAD + 36, y + 44, W - PAD * 2 - 36, 6);
-                    ctx.fillStyle = seg.color; ctx.globalAlpha = 0.9;
-                    ctx.fillRect(PAD + 36, y + 44, (W - PAD * 2 - 36) * seg.pct / 100, 6);
-                    ctx.globalAlpha = 1; ctx.textAlign = 'left';
-                });
-
-                drawSignature(ctx, W - PAD, H - 90, BLACK);
-                return canvas;
-            }
-
-            // ==================== SLIDE 3: EXPENSE LIST ====================
-            function makeSlide3() {
-                const canvas = setupCanvas();
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, W, H);
-                ctx.fillStyle = YELLOW; ctx.fillRect(0, 0, W, 10);
-
-                drawBrandTag(ctx, PAD, 70, '#111111', WHITE);
-
-                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.45;
-                ctx.font = '700 38px Inter, Arial, sans-serif';
-                ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                ctx.fillText(budget.lang === 'en' ? 'YOUR EXPENSES' : 'DEINE AUSGABEN', PAD, 190);
-                ctx.globalAlpha = 1;
-
-                const listStartY = 270;
-                const listEndY   = H - 300;
-                const availH     = listEndY - listStartY;
-                const rowH       = availH / budget.expenses.length;
-
-                budget.expenses.forEach((exp, i) => {
-                    const y = listStartY + i * rowH;
-
-                    // Row BG (alternate)
-                    ctx.fillStyle = WHITE; ctx.globalAlpha = i % 2 === 0 ? 0.03 : 0;
-                    ctx.fillRect(0, y, W, rowH);
-                    ctx.globalAlpha = 1;
-
-                    // Number badge
-                    ctx.fillStyle = YELLOW;
-                    ctx.font = '900 26px Inter, Arial Black, sans-serif';
-                    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                    ctx.fillText(String(i + 1).padStart(2, '0'), PAD, y + 12);
-
-                    // Name
-                    ctx.fillStyle = WHITE;
-                    ctx.font = '700 42px Inter, Arial, sans-serif';
-                    ctx.fillText(exp.name.toUpperCase(), PAD + 68, y + 4);
-
-                    // % of income
-                    const pct = ((exp.amount / budget.income) * 100).toFixed(1);
-                    ctx.fillStyle = WHITE; ctx.globalAlpha = 0.35;
-                    ctx.font = '600 28px Inter, Arial, sans-serif';
-                    ctx.fillText(`${pct}%`, PAD + 68, y + 56);
-                    ctx.globalAlpha = 1;
-
-                    // Amount
-                    ctx.fillStyle = segColors[i % segColors.length];
-                    ctx.font = '900 46px Inter, Arial Black, sans-serif';
-                    ctx.textAlign = 'right';
-                    ctx.fillText(`−${formatCurrency(exp.amount)}`, W - PAD, y + 10);
-
-                    // Divider
-                    ctx.strokeStyle = WHITE; ctx.globalAlpha = 0.08; ctx.lineWidth = 1;
-                    ctx.beginPath(); ctx.moveTo(PAD, y + rowH - 1); ctx.lineTo(W - PAD, y + rowH - 1); ctx.stroke();
-                    ctx.globalAlpha = 1; ctx.textAlign = 'left';
-                });
-
-                // Bottom summary
-                const sumY = listEndY + 30;
-                ctx.strokeStyle = WHITE; ctx.globalAlpha = 0.2; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(PAD, sumY - 10); ctx.lineTo(W - PAD, sumY - 10); ctx.stroke();
-                ctx.globalAlpha = 1;
-
-                ctx.fillStyle = WHITE; ctx.globalAlpha = 0.4;
-                ctx.font = '700 30px Inter, Arial, sans-serif';
-                ctx.fillText(budget.lang === 'en' ? 'TOTAL' : 'GESAMT', PAD, sumY);
-                ctx.globalAlpha = 1;
-                ctx.fillStyle = WHITE; ctx.font = '900 72px Inter, Arial Black, sans-serif';
-                ctx.fillText(formatCurrency(totalExpenses), PAD, sumY + 40);
-
-                ctx.fillStyle = isDeficit ? RED : YELLOW; ctx.globalAlpha = 0.4;
-                ctx.font = '700 30px Inter, Arial, sans-serif';
-                ctx.textAlign = 'right';
-                ctx.fillText(balLabel.toUpperCase(), W - PAD, sumY);
-                ctx.globalAlpha = 1;
-                ctx.font = '900 72px Inter, Arial Black, sans-serif';
-                ctx.fillStyle = isDeficit ? RED : YELLOW;
-                ctx.fillText(`${isDeficit ? '−' : '+'}${fmt(balance)}`, W - PAD, sumY + 40);
-                ctx.textAlign = 'left';
-
-                drawSignature(ctx, W - PAD, H - 60, WHITE);
-                return canvas;
-            }
-
-            // Generate all 3 slides and download
-            const slides = [
-                { canvas: makeSlide1(), file: 'story-1-cover.png' },
-                { canvas: makeSlide2(), file: 'story-2-breakdown.png' },
-                { canvas: makeSlide3(), file: 'story-3-expenses.png' }
-            ];
-
-            for (let i = 0; i < slides.length; i++) {
-                await new Promise(r => setTimeout(r, i * 400));
-                const a = document.createElement('a');
-                a.download = slides[i].file;
-                a.href = slides[i].canvas.toDataURL('image/png');
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            }
-        });
-
-
-        // --- Reset Logic ---
-        document.getElementById('btnReset').addEventListener('click', () => {
-            if (!confirm(budget.lang === 'de'
-                ? 'Alle Daten wirklich zurücksetzen? Das kann nicht rückgängig gemacht werden.'
-                : 'Really reset all data? This cannot be undone.')) return;
-            
-            localStorage.removeItem('myBudget');
-            budget = JSON.parse(JSON.stringify(DEFAULT_DATA)); // deep copy
-            
-            // Reset form fields
-            document.getElementById('incomeInput').value = budget.income;
-            document.getElementById('jobInput').value = '';
-            document.getElementById('annualSalaryInput').value = '';
-            document.getElementById('currencyInput').value = budget.currency;
-            
-            updateLanguage();
-        });
-
-        window.addEventListener('load', () => {
-            // Make sure income is always valid on load
-            if (!budget.income || budget.income <= 0) {
-                budget.income = DEFAULT_DATA.income;
-            }
-            document.getElementById('incomeInput').value = budget.income;
-            document.getElementById('jobInput').value = budget.job || '';
-            document.getElementById('annualSalaryInput').value = budget.annualSalary || '';
-            document.getElementById('currencyInput').value = budget.currency || 'USD';
-            updateLanguage();
-        });
-        window.addEventListener('resize', positionLabels);
-    </script>
+    <button class="btn btn-primary" id="fabAdd" type="button">
+        <span class="btn-ico" aria-hidden="true">＋</span><span data-i18n="fabAdd">Add</span>
+    </button>
+</div>
+<div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite" hidden>
+    <span id="toastText"></span>
+    <button class="toast-action" id="toastAction" type="button" hidden></button>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
