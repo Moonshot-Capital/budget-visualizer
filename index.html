@@ -11,6 +11,7 @@
     <meta name="description" content="Budget Visualizer – see where your money goes. Interactive, offline, no sign-up.">
     <title>Budget Visualizer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
     <link rel="stylesheet" href="style.css">
     <script>
         // Apply theme before paint to avoid flash
@@ -28,10 +29,11 @@
 <!-- ============ TOP BAR ============ -->
 <header class="topbar">
     <a class="brand" href="index.html" aria-label="Budget Visualizer">
-        <span class="brand-dot" aria-hidden="true"></span>
+        <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="56" height="56"/><path d="M16 46 L28 34 L36 42 L50 22"/></svg>
         <span class="brand-text">Budget<span class="brand-thin"> Visualizer</span></span>
     </a>
     <nav class="topbar-actions" aria-label="Main">
+        <a href="blog.html" class="btn btn-ghost btn-sm hide-xs" data-i18n="blogLink">Blog</a>
         <a href="how-it-works.html" class="btn btn-ghost btn-sm hide-xs" data-i18n="howItWorks">How it works</a>
         <div class="seg-control" role="group" aria-label="Language">
             <button class="seg-btn lang-btn" data-lang="de" type="button">DE</button>
@@ -207,8 +209,18 @@
         </div>
     </section>
 
-    <footer class="footer">
-        <span class="signature">Markus S.</span>
+<footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand"><svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="56" height="56"/><path d="M16 46 L28 34 L36 42 L50 22"/></svg><span>Budget Visualizer</span></div>
+            <p class="footer-note" data-i18n="footerNote">Kostenlose Beta – ohne Konto, ohne Werbung. Alles bleibt in deinem Browser.</p>
+            <nav class="footer-links" aria-label="Footer">
+                <a href="index.html" data-i18n="backLink">← Visualizer</a>
+                <a href="how-it-works.html" data-i18n="howItWorks">So funktioniert’s</a>
+                <a href="blog.html" data-i18n="blogLink">Blog</a>
+                <a href="feedback.html" data-i18n="feedbackLink">Feedback</a>
+                <a href="support.html" data-i18n="supportLink">Projekt unterstützen</a>
+            </nav>
+        </div>
     </footer>
 </main>
 

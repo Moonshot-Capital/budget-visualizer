@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;900&display=swap');
 
 /* ==========================================================================
    TOKENS
@@ -21,7 +21,6 @@
     --shadow-hard: 6px 6px 0 var(--ink);
 
     --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --font-script: 'Caveat', 'Brush Script MT', cursive;
 
     --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
     --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
@@ -131,12 +130,9 @@ button { cursor: pointer; }
     font-size: 1rem;
     white-space: nowrap;
 }
-.brand-dot {
-    width: 14px; height: 14px;
-    background: var(--yellow);
-    border: 2.5px solid var(--ink);
-    flex-shrink: 0;
-}
+.logo-mark { width: 22px; height: 22px; flex-shrink: 0; display: block; }
+.logo-mark rect { fill: var(--yellow); stroke: var(--ink); stroke-width: 5; }
+.logo-mark path { fill: none; stroke: var(--ink); stroke-width: 6; stroke-linecap: square; stroke-linejoin: miter; }
 .brand-thin { font-weight: 700; color: var(--ink-2); }
 
 .topbar-actions { display: flex; align-items: center; gap: var(--sp-2); }
@@ -568,13 +564,63 @@ button { cursor: pointer; }
 .danger-row { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; padding: 0 4px; }
 
 /* Footer */
-.footer {
-    width: min(100% - 2 * var(--sp-4), 1280px);
-    margin: var(--sp-6) auto var(--sp-6);
-    display: flex;
-    justify-content: flex-end;
+.site-footer {
+    border-top: var(--border-w) solid var(--line);
+    margin-top: var(--sp-8);
+    background: var(--surface);
 }
-.signature { font-family: var(--font-script); font-size: 2.4rem; transform: rotate(-4deg); display: inline-block; color: var(--ink); }
+.footer-inner {
+    width: min(100% - 2 * var(--sp-4), 1280px);
+    margin: 0 auto;
+    padding: var(--sp-6) 0;
+    display: grid;
+    gap: var(--sp-3);
+}
+.footer-brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: -.02em; }
+.footer-brand .logo-mark { width: 26px; height: 26px; }
+.footer-note { color: var(--ink-2); font-weight: 600; font-size: .9rem; max-width: 60ch; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.footer-links a { color: var(--ink); font-weight: 800; text-transform: uppercase; font-size: .78rem; letter-spacing: .06em; text-decoration: none; border-bottom: 2px solid transparent; padding: 4px 0; }
+.footer-links a:hover { border-bottom-color: var(--yellow); }
+@media (min-width: 900px) {
+    .footer-inner { grid-template-columns: auto 1fr auto; align-items: center; gap: var(--sp-5); }
+    .footer-note { text-align: center; margin: 0 auto; }
+}
+
+/* Static pages (blog, feedback, support) */
+.page { width: min(100% - 2 * var(--sp-4), 880px); margin: 0 auto; padding: var(--sp-6) 0 var(--sp-6); display: grid; gap: var(--sp-4); }
+.page-hero { padding: var(--sp-6) 0 var(--sp-3); }
+.page-hero h1 { font-weight: 900; text-transform: uppercase; letter-spacing: -.04em; font-size: clamp(2.4rem, 8vw, 4.5rem); line-height: .95; }
+.page-hero p { margin-top: var(--sp-3); color: var(--ink-2); font-weight: 600; max-width: 60ch; }
+.eyebrow { display: inline-block; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 8px; }
+.eyebrow.hl { color: #0a0a0a; background: var(--yellow); padding: 3px 8px; }
+.post-card h2 { font-weight: 900; text-transform: uppercase; letter-spacing: -.02em; font-size: 1.3rem; }
+.post-card h2 a { color: inherit; text-decoration: none; }
+.post-card h2 a:hover { text-decoration: underline; text-decoration-color: var(--yellow); text-decoration-thickness: 3px; }
+.post-card p { color: var(--ink-2); font-weight: 600; line-height: 1.55; }
+.post-meta { font-size: .8rem; color: var(--ink-2); font-weight: 700; }
+.prose { display: grid; gap: var(--sp-3); font-size: 1.05rem; line-height: 1.65; font-weight: 500; }
+.prose h2 { font-weight: 900; text-transform: uppercase; letter-spacing: -.02em; font-size: 1.35rem; margin-top: var(--sp-3); }
+.prose p, .prose li { color: var(--ink); }
+.prose ul, .prose ol { padding-left: 1.3em; display: grid; gap: 6px; }
+.prose strong { font-weight: 800; }
+.prose .callout { background: var(--surface); border: var(--border-w) solid var(--line); border-left: 8px solid var(--yellow); padding: var(--sp-4); font-weight: 600; }
+.prose .callout.muted { border-left-color: var(--line); color: var(--ink-2); font-size: .95rem; }
+.cta-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-3); }
+.action-grid { display: grid; gap: var(--sp-3); }
+.action { display: grid; gap: 8px; align-content: start; }
+.action h3 { font-weight: 900; text-transform: uppercase; letter-spacing: -.02em; font-size: 1.05rem; }
+.action p { color: var(--ink-2); font-weight: 600; line-height: 1.5; font-size: .95rem; }
+.action .btn { justify-self: start; margin-top: 4px; }
+.action.soon { opacity: .75; }
+.template { background: var(--bg); border: var(--border-w) solid var(--line); padding: var(--sp-4); font: 600 .9rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; color: var(--ink); }
+@media (min-width: 640px) {
+    .page { width: min(100% - 2 * var(--sp-5), 880px); padding-top: var(--sp-7); }
+    .action-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 900px) {
+    .action-grid { grid-template-columns: repeat(3, 1fr); }
+}
 
 /* ==========================================================================
    MOBILE ACTION BAR + BOTTOM SHEET
@@ -729,8 +775,6 @@ button { cursor: pointer; }
     .card-head h2 { font-size: 1.6rem; }
     .form-grid-add { grid-template-columns: 1fr 150px; }
     .expense-item { padding: 14px 14px 14px 16px; }
-    .footer { margin: var(--sp-8) auto; }
-    .signature { font-size: 3rem; }
 }
 
 @media (min-width: 1200px) {
@@ -745,7 +789,7 @@ button { cursor: pointer; }
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 @media print {
-    .topbar, .editor, .mobile-bar, .footer, .legend { display: none !important; }
+    .topbar, .editor, .mobile-bar, .site-footer, .legend { display: none !important; }
     .hero { border: none; }
     .viz-inner { transform: none; }
 }

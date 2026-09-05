@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
+    <title>Blog – Budget Visualizer</title>
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        (function () { try { var s = JSON.parse(localStorage.getItem('myBudget') || '{}'); if (s.theme === 'dark' || s.theme === 'light') document.documentElement.dataset.theme = s.theme; } catch (e) {} })();
+    </script>
+    <style>
+        body { padding-bottom: 0; }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" href="index.html"><svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="56" height="56"/><path d="M16 46 L28 34 L36 42 L50 22"/></svg><span class="brand-text">Budget<span class="brand-thin"> Visualizer</span></span></a>
+    <nav class="topbar-actions">
+        <a href="blog.html" class="btn btn-ghost btn-sm hide-xs" data-i18n="blogLink">Blog</a>
+        <a href="index.html" class="btn btn-ghost btn-sm" data-i18n="backLink">← Visualizer</a>
+        <div class="seg-control" role="group" aria-label="Language">
+            <button class="seg-btn lang-btn" data-lang="de" type="button">DE</button>
+            <button class="seg-btn lang-btn" data-lang="en" type="button">EN</button>
+        </div>
+    </nav>
+</header>
+
+<main class="page">
+<div data-lang-only="de">
+<section class="page-hero" id="top"><h1>Blog</h1><p>Gedanken zu Geld, Fixkosten und dem Projekt – kurz, ehrlich, ohne Finanz-Blabla. Neue Artikel erscheinen, wenn es etwas zu sagen gibt.</p></section>
+<section class="action-grid" style="grid-template-columns:1fr">
+<article class="card post-card">
+    <span class="eyebrow">Hinter dem Projekt · 2026-09</span>
+    <h2><a href="#warum">Warum ein Budget-Visualizer? Weil eine Tabelle kein Gefühl erzeugt.</a></h2>
+    <p>Zahlen in einer Excel-Liste sagen dir, wie viel du ausgibst. Ein Balken, der bis zum Rand voll ist, sagt dir, wie es sich anfühlt.</p>
+</article>
+<article class="card post-card">
+    <span class="eyebrow">Praxis · 2026-09</span>
+    <h2><a href="#fixkosten">Die 5 Fixkosten, die dein Budget wirklich bestimmen</a></h2>
+    <p>Nicht der Kaffee to go entscheidet, ob am Monatsende etwas übrig bleibt. Es sind fünf große Blöcke.</p>
+</article>
+<article class="card post-card">
+    <span class="eyebrow">Zahlen verstehen · 2026-09</span>
+    <h2><a href="#sparquote">Was ist eine gute Sparquote – und was sagt dein Balken darüber?</a></h2>
+    <p>10 %, 20 %, 50 %? Die richtige Sparquote hängt weniger vom Einkommen ab als davon, wie viel Gelb rechts übrig bleibt.</p>
+</article>
+<article class="card post-card">
+    <span class="eyebrow">Roadmap · 2026-09</span>
+    <h2><a href="#beta">Die Beta ist offen: Was jetzt kommt – und was bewusst noch nicht</a></h2>
+    <p>Kein Konto, keine Bezahlung, keine Bank-Anbindung. Erst mal zählt nur eins: Ist das Tool für euch nützlich?</p>
+</article>
+</section>
+<article class="card prose" id="warum">
+    <span class="eyebrow hl">Hinter dem Projekt</span>
+    <h1 style="font-weight:900;text-transform:uppercase;letter-spacing:-.03em;font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.05">Warum ein Budget-Visualizer? Weil eine Tabelle kein Gefühl erzeugt.</h1>
+    <p class="post-meta">2026-09 · Markus</p>
+<p>Fast jeder hat schon einmal versucht, ein Haushaltsbuch zu führen. Und fast jeder hört nach zwei Wochen wieder auf. Nicht, weil die Zahlen fehlen – sondern weil eine Tabelle nichts <strong>zeigt</strong>. 1.240 € Miete sind eine Zeile. Erst wenn diese Zeile zu einem Block wird, der ein Drittel deines gesamten Balkens frisst, versteht man: <em>Das</em> ist der Hebel.</p>
+<p>Der Budget Visualizer macht genau das. Du gibst dein Einkommen und deine größten Ausgaben ein – fertig. Kein Konto, keine App-Installation, keine Bankverbindung. Das Ergebnis ist ein einziger Balken, der dein Geld in Proportionen zeigt. Rechts bleibt übrig, was du wirklich zur Verfügung hast – oder rot leuchtet, was fehlt.</p>
+<h2>Die Idee kommt aus dem Zuschauen</h2>
+<p>Inspiriert ist das Tool von Formaten wie dem YouTube-Kanal <strong>„Lohnt sich das?“</strong>, in denen Menschen offen über ihr Gehalt und ihre Fixkosten sprechen. Was daran fasziniert, ist nicht die Zahl selbst, sondern der Vergleich: <em>Wie viel bleibt bei dem übrig – und wie viel bei mir?</em> Genau diese Frage beantwortet der Visualizer in Sekunden.</p>
+<h2>Was das Tool bewusst nicht macht</h2>
+<ul><li>Es verbindet sich nicht mit deinem Konto. Alles bleibt lokal im Browser.</li><li>Es will dich nicht täglich erinnern. Einmal im Monat reicht.</li><li>Es zeigt keine Werbung und verkauft keine Daten.</li></ul>
+<p>Die aktuelle Version ist eine kostenlose Beta. Ob und wie es weitergeht, entscheidet euer Feedback.</p>
+    <div class="cta-row"><a class="btn btn-primary" href="index.html">Jetzt dein eigenes Budget visualisieren →</a><a class="btn btn-ghost" href="#top">↑ Alle Artikel</a></div>
+</article>
+<article class="card prose" id="fixkosten">
+    <span class="eyebrow hl">Praxis</span>
+    <h1 style="font-weight:900;text-transform:uppercase;letter-spacing:-.03em;font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.05">Die 5 Fixkosten, die dein Budget wirklich bestimmen</h1>
+    <p class="post-meta">2026-09 · Markus</p>
+<p>Im Visualizer sieht man es sofort: Die ersten fünf Segmente machen bei den meisten über 80 % des Balkens aus. Alles danach ist Feinschliff.</p>
+<ol><li><strong>Wohnen</strong> – Miete oder Kredit inklusive Nebenkosten. Faustregel: unter 30 % des Nettos ist entspannt, über 40 % wird eng.</li><li><strong>Mobilität</strong> – Auto (Leasing, Versicherung, Sprit, Wartung) oder ÖPNV. Ein Auto kostet fast immer mehr, als man schätzt.</li><li><strong>Versicherungen & Vorsorge</strong> – Krankenversicherung, Haftpflicht, Altersvorsorge. Langweilig, aber groß.</li><li><strong>Lebensmittel</strong> – der Block, der sich am leichtesten steuern lässt, aber selten der größte ist.</li><li><strong>Abos & Verträge</strong> – Handy, Internet, Streaming, Fitness. Einzeln klein, zusammen oft ein sichtbares Segment.</li></ol>
+<div class="callout">Tipp: Trag zuerst nur diese fünf ein. Wenn der Balken schon jetzt fast voll ist, weißt du, wo du ansetzen musst – und dass Sparen beim Kaffee nichts bringt.</div>
+<p>Nutze die Jahresansicht, um zu sehen, was ein Segment über zwölf Monate kostet. 89 € Fitnessstudio sind 1.068 € im Jahr – diese Zahl fühlt sich anders an.</p>
+    <div class="cta-row"><a class="btn btn-primary" href="index.html">Jetzt dein eigenes Budget visualisieren →</a><a class="btn btn-ghost" href="#top">↑ Alle Artikel</a></div>
+</article>
+<article class="card prose" id="sparquote">
+    <span class="eyebrow hl">Zahlen verstehen</span>
+    <h1 style="font-weight:900;text-transform:uppercase;letter-spacing:-.03em;font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.05">Was ist eine gute Sparquote – und was sagt dein Balken darüber?</h1>
+    <p class="post-meta">2026-09 · Markus</p>
+<p>Die Sparquote ist der gelbe Rest ganz rechts in deinem Balken, geteilt durch dein Einkommen. Der Visualizer zeigt sie dir direkt als Kennzahl.</p>
+<h2>Grobe Orientierung</h2>
+<ul><li><strong>unter 5 %</strong> – jede Unregelmäßigkeit (Autoreparatur, Nachzahlung) wird zum Problem. Ziel: erst Puffer aufbauen.</li><li><strong>10–20 %</strong> – solide. Damit lassen sich Notgroschen und langfristige Vorsorge parallel bedienen.</li><li><strong>über 30 %</strong> – stark. Hier lohnt sich die Frage, ob das Geld arbeitet oder nur auf dem Girokonto liegt.</li></ul>
+<p>Wichtig: Die Quote ist kein Wettbewerb. Wer in München 1.600 € Miete zahlt, hat einen anderen Balken als jemand auf dem Land. Spannend wird es, wenn du <strong>deinen</strong> Balken mit dir selbst vergleichst – heute, in drei Monaten, nach einem Umzug oder einer Gehaltserhöhung.</p>
+<div class="callout">Probier es aus: Ändere im Visualizer nur eine Zahl – z. B. das Auto raus, ÖPNV rein – und beobachte, wie sich der gelbe Bereich bewegt.</div>
+    <div class="cta-row"><a class="btn btn-primary" href="index.html">Jetzt dein eigenes Budget visualisieren →</a><a class="btn btn-ghost" href="#top">↑ Alle Artikel</a></div>
+</article>
+<article class="card prose" id="beta">
+    <span class="eyebrow hl">Roadmap</span>
+    <h1 style="font-weight:900;text-transform:uppercase;letter-spacing:-.03em;font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.05">Die Beta ist offen: Was jetzt kommt – und was bewusst noch nicht</h1>
+    <p class="post-meta">2026-09 · Markus</p>
+<p>Der Budget Visualizer ist ab jetzt als kostenlose Beta online. Alles funktioniert direkt im Browser, auf dem Handy wie am Desktop. Deine Daten bleiben lokal auf deinem Gerät.</p>
+<h2>Was schon da ist</h2>
+<ul><li>Einkommen, Ausgaben, Währung – Monats- und Jahresansicht</li><li>Kennzahlen: Ausgaben, Rest, Sparquote, größter Posten</li><li>Export als PDF-Report und als Instagram-Stories</li><li>Teilen per Link – ohne Server, alles steckt im Link selbst</li></ul>
+<h2>Was bewusst noch fehlt</h2>
+<ul><li>Konten und Cloud-Synchronisation</li><li>Bezahlfunktionen oder Premium-Features</li><li>Bank-Anbindungen oder externe Dienste</li></ul>
+<p>Der Grund ist einfach: Bevor irgendetwas davon gebaut wird, will ich wissen, ob das Grundprinzip für euch funktioniert. Deshalb gibt es jetzt eine <a href="feedback.html">Feedback-Seite</a> – und wer das Projekt gut findet, kann es auf der Seite <a href="support.html">Projekt unterstützen</a> weiterbringen.</p>
+    <div class="cta-row"><a class="btn btn-primary" href="index.html">Jetzt dein eigenes Budget visualisieren →</a><a class="btn btn-ghost" href="#top">↑ Alle Artikel</a></div>
+</article>
+</div>
+<div data-lang-only="en" hidden>
+<section class="page-hero" id="top"><h1>Blog</h1><p>Thoughts on money, fixed costs and the project – short, honest, no finance jargon. New articles appear when there is something to say.</p></section>
+<section class="action-grid" style="grid-template-columns:1fr">
+<article class="card post-card">
+    <span class="eyebrow">Behind the project · 2026-09</span>
+    <h2><a href="#warum">Why a budget visualizer? Because a spreadsheet creates no feeling.</a></h2>
+    <p>Numbers in a spreadsheet tell you how much you spend. A bar that is filled to the edge tells you how it feels.</p>
+</article>
+<article class="card post-card">
+    <span class="eyebrow">Practice · 2026-09</span>
+    <h2><a href="#fixkosten">The 5 fixed costs that really define your budget</a></h2>
+    <p>It’s not the coffee to go that decides whether something is left at the end of the month. It’s five big blocks.</p>
+</article>
+<article class="card post-card">
+    <span class="eyebrow">Understanding numbers · 2026-09</span>
+    <h2><a href="#sparquote">What is a good savings rate – and what does your bar say about it?</a></h2>
+    <p>10%, 20%, 50%? The right savings rate depends less on income than on how much yellow is left on the right.</p>
+</article>
+<article class="card post-card">
+    <span class="eyebrow">Roadmap · 2026-09</span>
+    <h2><a href="#beta">The beta is open: what comes next – and what deliberately not yet</a></h2>
+    <p>No account, no payments, no bank connection. For now only one thing counts: is the tool useful for you?</p>
+</article>
+</section>
+<article class="card prose" id="warum">
+    <span class="eyebrow hl">Behind the project</span>
+    <h1 style="font-weight:900;text-transform:uppercase;letter-spacing:-.03em;font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.05">Why a budget visualizer? Because a spreadsheet creates no feeling.</h1>
+    <p class="post-meta">2026-09 · Markus</p>
+<p>Almost everyone has tried keeping a household budget. And almost everyone stops after two weeks. Not because the numbers are missing – but because a table doesn’t <strong>show</strong> anything. €1,240 rent is a row. Only when that row becomes a block eating a third of your entire bar do you get it: <em>that</em> is the lever.</p>
+<p>The Budget Visualizer does exactly that. Enter your income and your biggest expenses – done. No account, no app install, no bank connection. The result is a single bar showing your money in proportions. What remains on the right is what you actually have left – or glows red if it’s missing.</p>
+<h2>The idea comes from watching</h2>
+<p>The tool is inspired by formats like the German YouTube channel <strong>“Lohnt sich das?”</strong> (“Is it worth it?”), where people talk openly about their salary and fixed costs. What fascinates is not the number itself but the comparison: <em>how much is left for them – and how much for me?</em> That’s the question the visualizer answers in seconds.</p>
+<h2>What the tool deliberately does not do</h2>
+<ul><li>It does not connect to your bank. Everything stays local in your browser.</li><li>It will not nag you daily. Once a month is enough.</li><li>It shows no ads and sells no data.</li></ul>
+<p>The current version is a free beta. Whether and how it continues is decided by your feedback.</p>
+    <div class="cta-row"><a class="btn btn-primary" href="index.html">Visualize your own budget now →</a><a class="btn btn-ghost" href="#top">↑ All articles</a></div>
+</article>
+<article class="card prose" id="fixkosten">
+    <span class="eyebrow hl">Practice</span>
+    <h1 style="font-weight:900;text-transform:uppercase;letter-spacing:-.03em;font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.05">The 5 fixed costs that really define your budget</h1>
+    <p class="post-meta">2026-09 · Markus</p>
+<p>You see it immediately in the visualizer: for most people the first five segments make up over 80% of the bar. Everything after that is fine-tuning.</p>
+<ol><li><strong>Housing</strong> – rent or mortgage including utilities. Rule of thumb: under 30% of net income is comfortable, over 40% gets tight.</li><li><strong>Mobility</strong> – car (lease, insurance, fuel, maintenance) or public transport. A car almost always costs more than you estimate.</li><li><strong>Insurance & pension</strong> – health insurance, liability, retirement. Boring, but big.</li><li><strong>Groceries</strong> – the block that is easiest to steer, but rarely the biggest.</li><li><strong>Subscriptions & contracts</strong> – phone, internet, streaming, gym. Small individually, together often a visible segment.</li></ol>
+<div class="callout">Tip: Enter only these five first. If the bar is almost full already, you know where to start – and that saving on coffee won’t help.</div>
+<p>Use the year view to see what a segment costs over twelve months. €89 gym is €1,068 a year – that number feels different.</p>
+    <div class="cta-row"><a class="btn btn-primary" href="index.html">Visualize your own budget now →</a><a class="btn btn-ghost" href="#top">↑ All articles</a></div>
+</article>
+<article class="card prose" id="sparquote">
+    <span class="eyebrow hl">Understanding numbers</span>
+    <h1 style="font-weight:900;text-transform:uppercase;letter-spacing:-.03em;font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.05">What is a good savings rate – and what does your bar say about it?</h1>
+    <p class="post-meta">2026-09 · Markus</p>
+<p>Your savings rate is the yellow remainder at the far right of your bar, divided by your income. The visualizer shows it directly as a KPI.</p>
+<h2>Rough orientation</h2>
+<ul><li><strong>under 5%</strong> – any irregularity (car repair, back payment) becomes a problem. Goal: build a buffer first.</li><li><strong>10–20%</strong> – solid. Emergency fund and long-term savings can run in parallel.</li><li><strong>over 30%</strong> – strong. Worth asking whether the money is working or just sitting in a checking account.</li></ul>
+<p>Important: the rate is not a competition. Someone paying €1,600 rent in Munich has a different bar than someone in the countryside. It gets interesting when you compare <strong>your</strong> bar with yourself – today, in three months, after a move or a raise.</p>
+<div class="callout">Try it: change just one number in the visualizer – e.g. swap the car for public transport – and watch the yellow area move.</div>
+    <div class="cta-row"><a class="btn btn-primary" href="index.html">Visualize your own budget now →</a><a class="btn btn-ghost" href="#top">↑ All articles</a></div>
+</article>
+<article class="card prose" id="beta">
+    <span class="eyebrow hl">Roadmap</span>
+    <h1 style="font-weight:900;text-transform:uppercase;letter-spacing:-.03em;font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.05">The beta is open: what comes next – and what deliberately not yet</h1>
+    <p class="post-meta">2026-09 · Markus</p>
+<p>The Budget Visualizer is now online as a free beta. Everything runs directly in the browser, on phone and desktop. Your data stays locally on your device.</p>
+<h2>What’s already there</h2>
+<ul><li>Income, expenses, currency – month and year view</li><li>KPIs: expenses, remainder, savings rate, biggest item</li><li>Export as PDF report and as Instagram stories</li><li>Share via link – no server, everything is in the link itself</li></ul>
+<h2>What is deliberately missing</h2>
+<ul><li>Accounts and cloud sync</li><li>Payments or premium features</li><li>Bank connections or external services</li></ul>
+<p>The reason is simple: before any of that gets built, I want to know whether the basic principle works for you. That’s why there is now a <a href="feedback.html">feedback page</a> – and if you like the project, you can help it grow on the <a href="support.html">support page</a>.</p>
+    <div class="cta-row"><a class="btn btn-primary" href="index.html">Visualize your own budget now →</a><a class="btn btn-ghost" href="#top">↑ All articles</a></div>
+</article>
+</div>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand"><svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="56" height="56"/><path d="M16 46 L28 34 L36 42 L50 22"/></svg><span>Budget Visualizer</span></div>
+        <p class="footer-note" data-i18n="footerNote">Kostenlose Beta – ohne Konto, ohne Werbung. Alles bleibt in deinem Browser.</p>
+        <nav class="footer-links" aria-label="Footer">
+            <a href="index.html" data-i18n="backLink">← Visualizer</a>
+            <a href="how-it-works.html" data-i18n="howItWorks">So funktioniert’s</a>
+            <a href="blog.html" data-i18n="blogLink">Blog</a>
+            <a href="feedback.html" data-i18n="feedbackLink">Feedback</a>
+            <a href="support.html" data-i18n="supportLink">Projekt unterstützen</a>
+        </nav>
+    </div>
+</footer>
+<script>window.PAGE_TR = {"de": {"pageTitle": "Blog"}, "en": {"pageTitle": "Blog"}};</script>
+<script src="site.js"></script>
+</body>
+</html>

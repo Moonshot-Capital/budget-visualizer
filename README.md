@@ -1,8 +1,17 @@
-# Budget Visualizer 2.0
+# Budget Visualizer 3.0
 
 Eine schnelle, offline-fähige Web-App, die dein monatliches Budget als skewed Balken visualisiert – jetzt als echtes Dashboard für Desktop **und** als App-Erlebnis auf dem Smartphone.
 
 Keine Anmeldung, kein Backend: Alle Daten bleiben in `localStorage` deines Browsers.
+
+## Was ist neu in 3.0
+
+- **Logo statt Unterschrift**: neues Markenzeichen (gelbes Quadrat + steigende Linie) in Topbar, Footer, Favicon (`logo.svg`) sowie in PDF-Report und Instagram-Stories. Die Schreibschrift *Caveat* ist entfernt.
+- **Blog** (`blog.html`): statische Artikel in DE/EN, Übersicht + Volltext mit Call-to-Action.
+- **Feedback** (`feedback.html`): E-Mail-Buttons mit vorausgefüllter Vorlage (Feedback / Fehler) und kopierbarer Vorlage - kein Formular, kein Backend.
+- **Projekt unterstützen** (`support.html`): Feedback, Teilen, Weiterempfehlen; Spenden-Platzhalter ohne Zahlungsanbieter.
+- **Footer-Navigation** auf allen Seiten; `site.js` steuert Theme, Sprache und Kontaktadresse der statischen Seiten.
+- Kontaktadresse anpassen: `CONTACT_EMAIL` in `site.js`.
 
 ## Was ist neu in 2.0
 
@@ -36,8 +45,13 @@ Keine Anmeldung, kein Backend: Alle Daten bleiben in `localStorage` deines Brows
 | `style.css` | Design-Tokens, Light/Dark, responsive Layout (Mobile-first, Breakpoints 640 / 900 / 1200 px) |
 | `app.js` | Logik: State, Rendering, i18n, Exporte |
 | `how-it-works.html` | Kurzanleitung in DE/EN |
+| `blog.html` | Blog mit statischen Artikeln (DE/EN) |
+| `feedback.html` | Feedback-Seite (mailto-Vorlagen) |
+| `support.html` | Projekt unterstützen (ohne Zahlungsanbieter) |
+| `site.js` | Gemeinsames Script der statischen Seiten (Theme, Sprache, Kontakt) |
+| `logo.svg` | Logo / Favicon |
 
-Externe Abhängigkeiten (per CDN, optional): Google Fonts *Inter* + *Caveat* und `jsPDF` 2.5.1 für den PDF-Export. Ohne Netz läuft alles außer dem PDF-Download – Fallback-Schriften werden verwendet.
+Externe Abhängigkeiten (per CDN, optional): Google Fonts *Inter* und `jsPDF` 2.5.1 für den PDF-Export. Ohne Netz läuft alles außer dem PDF-Download – Fallback-Schriften werden verwendet.
 
 ## Lokal starten
 

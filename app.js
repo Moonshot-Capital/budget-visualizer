@@ -8,7 +8,7 @@
     /* ------------------------------------------------------------------ i18n */
     const T = {
         de: {
-            howItWorks: 'So funktioniert\u2019s',
+            howItWorks: 'So funktioniert\u2019s', blogLink: 'Blog', feedbackLink: 'Feedback', supportLink: 'Projekt unterst\u00fctzen', backLink: '\u2190 Visualizer', footerNote: 'Kostenlose Beta \u2013 ohne Konto, ohne Werbung. Alles bleibt in deinem Browser.',
             viewMonth: 'Monat', viewYear: 'Jahr',
             heroSubMonth: 'Netto pro Monat', heroSubYear: 'Netto pro Jahr',
             categories: (n) => `${n} ${n === 1 ? 'Kategorie' : 'Kategorien'}`,
@@ -39,7 +39,7 @@
             netIncome: 'Nettoeinkommen', share: 'Teilen'
         },
         en: {
-            howItWorks: 'How it works',
+            howItWorks: 'How it works', blogLink: 'Blog', feedbackLink: 'Feedback', supportLink: 'Support the project', backLink: '\u2190 Visualizer', footerNote: 'Free beta \u2013 no account, no ads. Everything stays in your browser.',
             viewMonth: 'Monthly', viewYear: 'Yearly',
             heroSubMonth: 'Net income per month', heroSubYear: 'Net income per year',
             categories: (n) => `${n} ${n === 1 ? 'category' : 'categories'}`,
@@ -597,11 +597,22 @@
         return { segs: segs.filter(s => s.amount > 0), denom: Math.max(budget.income, totalExpenses), totalExpenses, balance, isDeficit };
     }
     const F = (w, px) => `${w} ${px}px Inter, system-ui, -apple-system, 'Segoe UI', Arial, sans-serif`;
+    /* Logo mark (replaces the hand-written signature): yellow square + rising bar, right-aligned at (x, y). */
+    function logoMark(ctx, x, y, size, fg) {
+        const s = size, u = s / 64;
+        ctx.save(); ctx.translate(x, y);
+        ctx.fillStyle = YELLOW; ctx.fillRect(4 * u, 4 * u, 56 * u, 56 * u);
+        ctx.strokeStyle = fg; ctx.lineWidth = 5 * u; ctx.strokeRect(4 * u, 4 * u, 56 * u, 56 * u);
+        ctx.lineWidth = 6 * u; ctx.lineCap = 'square'; ctx.lineJoin = 'miter'; ctx.beginPath();
+        ctx.moveTo(16 * u, 46 * u); ctx.lineTo(28 * u, 34 * u); ctx.lineTo(36 * u, 42 * u); ctx.lineTo(50 * u, 22 * u); ctx.stroke();
+        ctx.restore();
+    }
     function sig(ctx, x, y, color, size = 80) {
-        ctx.save(); ctx.fillStyle = color; ctx.globalAlpha = .85;
-        ctx.font = `700 ${size}px Caveat, 'Brush Script MT', cursive`;
-        ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
-        ctx.translate(x, y); ctx.rotate(-0.05); ctx.fillText('Markus S.', 0, 0); ctx.restore();
+        const mark = Math.round(size * 0.7);
+        ctx.save(); ctx.fillStyle = color; ctx.font = F(900, Math.round(size * 0.32)); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText('BUDGET VISUALIZER', x - mark - Math.round(size * 0.2), y - mark / 2);
+        ctx.restore();
+        logoMark(ctx, x - mark, y - mark, mark, color);
     }
     function brandTag(ctx, x, y, fg) {
         ctx.save();
